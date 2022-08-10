@@ -257,55 +257,23 @@ def viewNutrientes():
     return render_template('viewNutrientes.html',fec = fec, biomasa_planta = biomasa_planta, biomasa=biomasa, tupla = tupla, intervalo = intervalo,  estacionName = estacionName)
 
 @app.route('/viewHidrica', methods =['POST'])
-def viewHidrica():
-    
-  if request.method == 'POST':
-  
-    estacion = request.form['cmbEstacion']
-    suelo = request.form['cmbSuelo']
-    riego = request.form['cmbRiego']
-    dias = request.form['dias']
-    #fechaFinal=request.form['fechaFinal']
-    #######################################################para colombia enviamos la fecha de hoy
-    fecha_hoy = datetime.now()
-    date = fecha_hoy.date()
-    fechaFinal = date.strftime("%Y-%m-%d")
-    ###################################
-
-    session['suelo'] = suelo
-    session['riego'] = riego
-    session['estacion'] = estacion
-    session['dias'] = dias
-    session['fechaFinal'] = fechaFinal
-    fechaFinal = funcionesGenerales.cambiar_formato_fecha(fechaFinal)
-
-    dict_estaciones = {"1":"Fundación","2":"otras"}
-    estacionName=dict_estaciones[estacion] #BUSCA LA ESTACION 
-    session['estacionName'] = estacionName
-    NH, data, evp_cultivo, Deficit  = quintaFuncion.nHidrica(int(dias),fechaFinal,int(estacion),suelo, riego) #NH esta en mm
-    NH2 = round(NH*10,2) #m3
-    session['valor1'] = str(NH)
-    session['valor2'] = str(NH2)
-    session['data'] = data
-
-    fechas = [row[0] for row in data]
-    evap = [row[1] for row in data]
-    rain = [row[2] for row in data]
-    fechaFinal=data[-1][0]
-
- 
-    return render_template('viewHidrica.html', NH= NH,NH2 = NH2,riego=riego, rain=rain, suelo=suelo, fechas = fechas, evap=evap,data=data, estacionName = estacionName, dias=int(dias), fechaFinal=fechaFinal)
-
-@app.route('/viewHidricaDemanda', methods =['POST'])
 def viewHidricaDemanda():
     
   if request.method == 'POST':
   
     estacion = request.form['cmbEstacion']
-    suelo = request.form['cmbSuelo']
+    rPa = request.form['rPa']
+    dAparente = request.form['dAparente']
+    Hsuelo = request.form['Hsuelo']
     riego = request.form['cmbRiego']
-    fechaFinal = request.form['fechaFinal']
-    session['suelo'] = suelo
+    #######################################################para colombia enviamos la fecha de hoy
+    fecha_hoy = datetime.now()
+    date = fecha_hoy.date()
+    fechaFinal = date.strftime("%Y-%m-%d")
+    ###################################
+    session['rPa'] = rPa
+    session['dAparente'] = dAparente
+    session['Hsuelo'] = Hsuelo
     session['riego'] = riego
     session['estacion'] = estacion
     session['fechaFinal'] = fechaFinal
@@ -314,10 +282,8 @@ def viewHidricaDemanda():
     dict_estaciones = {"1":"Fundación","2":"otras"}
     estacionName=dict_estaciones[estacion] #BUSCA LA ESTACION 
     session['estacionName'] = estacionName
-    NH, data, evapoAcumulada, deficit = quintaFuncion.nHidricaDemanda(fechaFinal,int(estacion), suelo, riego)
-    NH2 = NH*10
-    session['NH2'] = str(NH2)
-    session['NH2'] = str(NH2)
+    Rec_LP, Rec_L_Ha, data = quintaFuncion.RecomendacionHidrica(fechaFinal, int(estacion), int(rPa), float(dAparente), int(Hsuelo), riego)
+    
     session['data'] = data
 
     fechas = [row[0] for row in data]
@@ -325,40 +291,8 @@ def viewHidricaDemanda():
     rain = [row[2] for row in data]
     fechaFinal=data[-1][0]
     
-    return render_template('viewHidricaDemanda.html', NH= NH, NH2=NH2, fechas = fechas, evap=evap,rain=rain,data=data, estacionName = estacionName, evapoAcumulada=evapoAcumulada, fechaFinal=fechaFinal, deficit=deficit)
+    return render_template('viewHidrica.html', Rec_LP= Rec_LP, Rec_L_Ha=Rec_L_Ha, fechas = fechas, evap=evap,rain=rain,data=data, estacionName = estacionName, fechaFinal=fechaFinal,riego=riego)
 
-@app.route('/viewHidricaIntervalo', methods =['POST'])
-def viewHidricaIntervalo():
-    
-  if request.method == 'POST':
-  
-    estacion = request.form['cmbEstacion']
-    suelo = request.form['cmbSuelo']
-    riego = request.form['cmbRiego']
-    dias = request.form['dias']
-    fechaFinal=request.form['fechaFinal']
-
-    session['suelo'] = suelo
-    session['riego'] = riego
-    session['estacion'] = estacion
-    session['dias'] = dias
-    session['fechaFinal'] = fechaFinal
-    fechaFinal = funcionesGenerales.cambiar_formato_fecha(fechaFinal)
-
-    dict_estaciones = {"1":"Fundación","2":"otras"}
-    estacionName=dict_estaciones[estacion] #BUSCA LA ESTACION 
-    session['estacionName'] = estacionName
-    NH, data, evp_cultivo, intervalo_30, intervalo_50, intervalo_70  = quintaFuncion.nHidricaIntervalo(int(dias),fechaFinal,int(estacion),suelo, riego)
-
-    session['NH'] = str(NH)
-    session['data'] = data
-
-    fechas = [row[0] for row in data]
-    evap = [row[1] for row in data]
-    rain = [row[2] for row in data]
-    fechaFinal=data[-1][0]
-
-    return render_template('viewHidricaIntervalo.html', riego=riego, rain=rain, suelo=suelo, fechas = fechas, evap=evap,data=data, estacionName = estacionName, dias=int(dias), fechaFinal=fechaFinal, intervalo_30=intervalo_30, intervalo_50=intervalo_50, intervalo_70=intervalo_70 )
 
 
 @app.route('/formNroHojas')

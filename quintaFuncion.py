@@ -8,7 +8,7 @@ from datetime import date
 #biblioteca Mongo
 import pymongo
 from pymongo import MongoClient
-from bson.json_util import dumps, loads
+
 import time
 
 MONGO_HOST = "200.48.235.251"
@@ -35,7 +35,7 @@ def convert_formato_fecha(fec):
     
     return(fec, fec_unix)
 
-def BD_MONGO_RIEGO_DEMANDA(pais, estacion, fec_unix_usuario):
+def BD_MONGO_RIEGO(pais, estacion, fec_unix_usuario):
     fec_inicial_unix = fec_unix_usuario-7*86400
     
     try:
@@ -76,226 +76,48 @@ def BD_MONGO_RIEGO_DEMANDA(pais, estacion, fec_unix_usuario):
     except pymongo.errors.ConnectionFailure as errorConnexion:
         return("Fallo al conectarse a mongodb" + errorConnexion)
 
-def nHidricaDemanda(fec, estacion, tipo, tipo_riego):
-    pais = 2#1 peru
-    print("Fecha ingresada por el usuario:", fec)
+
+def RecomendacionHidrica(fec, estacion, rPa, dAparente, Hsuelo, tipo_riego):
+    pais = 2  #colombia
+    ##datos de entrada
+    area_planta = 1
+    Hvolumetrico = 70*dAparente
+    HvolumOptimo = (Hvolumetrico/100)*0.25*area_planta*1000
+    HvolumOptimo_hec = (Hvolumetrico/100)*0.25*10000*1000
+
+    coefCultivo = 0.6
+    HsueloVolumetrico = dAparente*Hsuelo ##ecuacion 6.6
+
+    LaminaAguaDisponible_planta_m2 = (HsueloVolumetrico/100)*area_planta*0.25*1000
+    LaminaAguaDisponible_planta_ha = (HsueloVolumetrico/100)*0.25*1000*10000
+
+    
+    
     #convertimos a string y unix y restamos el dia de consulta
     fec_string_usuario, fec_unix_usuario = convert_formato_fecha(fec)
-    print("Fecha a ingresar a calculo:", fec_string_usuario)
-    ##solicitamos datos
-    datos=BD_MONGO_RIEGO_DEMANDA(pais, estacion, fec_unix_usuario)
-    ###calculo
-    ET_acc = 0
-    precip_acc = 0
-    agua_aprove = {'arenosa':2.5, 'arcillosa':7, 'franco':4.75}
-    den_ap_suelo = {'arenosa':1.65, 'arcillosa':1.3, 'franco':1.25}
-    cap_suelo = den_ap_suelo[tipo]*500*agua_aprove[tipo]
-    suelo_infil_lluvia = ET_acc + cap_suelo
-    #unimos datos para la grafica de la evapotranspiracion
+    datos=BD_MONGO_RIEGO(pais, estacion, fec_unix_usuario)
     Vector_Grafica=[]
-    evp_cultivo=0
-
+    RiegoL_D_suma = 0
+    RiegoL_Ha_suma = 0
     for k in datos:
         fecha = k["Fecha_D_str"]
         et = k["Datos"]["ET_D"]
-        ET_acc += et
-        inc_lluvia = k["Datos"]["Precipitacion_D"]
-        evp_cultivo += round(et*1.1,2)
-        #print("Fecha:", fecha, " ","Temperatura:", temperatura , " ", "GDD:", gdd)
-        if inc_lluvia > 5:
-            precip_acc += inc_lluvia
-        Vector_Grafica.append((fecha, round(et*1.1,2), round(inc_lluvia,2)))
-    
-    if suelo_infil_lluvia < precip_acc:
-        lluvia_efectiva = suelo_infil_lluvia
-    else:
-        lluvia_efectiva = precip_acc
-    ef_riego = {'inundación':0.5,'microaspersión':0.7,'goteo':0.9}
-    NH = (ET_acc*1.1 - lluvia_efectiva)*10/ef_riego[tipo_riego]
-    if NH < 0:
-        NH = 0
-    Deficit=evp_cultivo-lluvia_efectiva
-    #print("lluvia efectiva:", lluvia_efectiva)
-    if Deficit <= 0:
-        Deficit=0
-    return round(NH,2), Vector_Grafica, round(evp_cultivo,2), round(Deficit,2)
+        precipitacion = k["Datos"]["Precipitacion_D"]
+        evp_cultivo = et*coefCultivo
+        evp_cultivo_2 = et*1.1
 
-### funion b : hidrica
+        RiegoL_D = (evp_cultivo-precipitacion)*area_planta*0.25
+        RiegoL_Ha = (evp_cultivo-precipitacion)*10000*0.25
+        RiegoL_D_suma += RiegoL_D
+        RiegoL_Ha_suma += RiegoL_Ha
 
-def BD_MONGO_RIEGO(dias, pais, estacion, fec_unix_usuario):
-    fec_inicial_unix = fec_unix_usuario-dias*86400
-    
-    try:
-        cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=MONGO_TIEMPO_FUERA)
-        baseDatos = cliente[MONGO_BASEDATOS]
-        coleccion=baseDatos[MONGO_COLECCION]
-        ##4 CONSULTAS A LA VEZ
-        datos = coleccion.aggregate(
-                                        [
-                                            {"$match": 
-                                                {"$and":
-                                                        [
-                                                            {"pais":pais},
-                                                            {"estacion":estacion},
-                                                            {"Fecha_D":{"$gt": fec_inicial_unix ,"$lte":fec_unix_usuario}}
-                                                        ]
-                                                }
-                                            },
-                                            
-                                            {
-                                            "$project":{
-                                                "_id":0,
-                                                "Fecha_D_str":1,
-                                                
-                                                "Datos.ET_D":1,
-                                                "Datos.Precipitacion_D":1,
-                                            }
-                                            }
+        Vector_Grafica.append((fecha, round(evp_cultivo_2,2), round(precipitacion,2)))
 
-                                        ])
+    RecomendacionLP = HvolumOptimo-(LaminaAguaDisponible_planta_m2+RiegoL_D_suma)
+    RecomendacionLH = (HvolumOptimo_hec-(LaminaAguaDisponible_planta_ha+RiegoL_Ha_suma))/1000
 
-        
-        
-        semana_gdd = list(datos)
-        return semana_gdd
-    except pymongo.errors.ServerSelectionTimeoutError as errorTiempo:
-        return("Teimpo exedido"+ errorTiempo)
-    except pymongo.errors.ConnectionFailure as errorConnexion:
-        return("Fallo al conectarse a mongodb" + errorConnexion)
-
-
-def nHidrica(dias, fec, estacion, tipo, tipo_riego):
-    pais = 2#1 peru
-    print("Fecha ingresada por el usuario:", fec)
-    #convertimos a string y unix y restamos el dia de consulta
-    fec_string_usuario, fec_unix_usuario = convert_formato_fecha(fec)
-    print("Fecha a ingresar a calculo:", fec_string_usuario)
-    ##solicitamos datos
-    datos=BD_MONGO_RIEGO(dias, pais, estacion, fec_unix_usuario)
-    ###calculo
-    ET_acc = 0
-    precip_acc = 0
-    agua_aprove = {'arenosa':2.5, 'arcillosa':7, 'franco':4.75}
-    den_ap_suelo = {'arenosa':1.65, 'arcillosa':1.3, 'franco':1.25}
-    cap_suelo = den_ap_suelo[tipo]*500*agua_aprove[tipo]
-    suelo_infil_lluvia = ET_acc + cap_suelo
-    #unimos datos para la grafica de la evapotranspiracion
-    Vector_Grafica=[]
-    evp_cultivo=0
-
-    for k in datos:
-        fecha = k["Fecha_D_str"]
-        et = k["Datos"]["ET_D"]
-        ET_acc += et
-        inc_lluvia = k["Datos"]["Precipitacion_D"]
-        evp_cultivo += round(et*1.1,2)
-        #print("Fecha:", fecha, " ","Temperatura:", temperatura , " ", "GDD:", gdd)
-        if inc_lluvia > 5:
-            precip_acc += inc_lluvia
-        Vector_Grafica.append((fecha, round(et*1.1,2), round(inc_lluvia,2)))
-    
-    if suelo_infil_lluvia < precip_acc:
-        lluvia_efectiva = suelo_infil_lluvia
-    else:
-        lluvia_efectiva = precip_acc
-    ef_riego = {'inundación':0.5,'microaspersión':0.7,'goteo':0.9}
-    NH = (ET_acc*1.1 - lluvia_efectiva)*10/ef_riego[tipo_riego]
-    if NH < 0:
-        NH = 0
-    Deficit=evp_cultivo-lluvia_efectiva
-    #print("lluvia efectiva:", lluvia_efectiva)
-    return round(NH/10,2), Vector_Grafica, round(evp_cultivo,2), round(Deficit,2)
-
-##funcion c : intervalo
-
-def BD_MONGO_INTERVALO(dias, pais, estacion, fec_unix_usuario):
-    fec_inicial_unix = fec_unix_usuario-dias*86400
-    
-    try:
-        cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=MONGO_TIEMPO_FUERA)
-        baseDatos = cliente[MONGO_BASEDATOS]
-        coleccion=baseDatos[MONGO_COLECCION]
-        ##4 CONSULTAS A LA VEZ
-        datos = coleccion.aggregate(
-                                        [
-                                            {"$match": 
-                                                {"$and":
-                                                        [
-                                                            {"pais":pais},
-                                                            {"estacion":estacion},
-                                                            {"Fecha_D":{"$gt": fec_inicial_unix ,"$lte":fec_unix_usuario}}
-                                                        ]
-                                                }
-                                            },
-                                            
-                                            {
-                                            "$project":{
-                                                "_id":0,
-                                                "Fecha_D_str":1,
-                                                
-                                                "Datos.ET_D":1,
-                                                "Datos.Precipitacion_D":1,
-                                            }
-                                            }
-
-                                        ])
-
-        
-        
-        semana_gdd = list(datos)
-        return semana_gdd
-    except pymongo.errors.ServerSelectionTimeoutError as errorTiempo:
-        return("Teimpo exedido"+ errorTiempo)
-    except pymongo.errors.ConnectionFailure as errorConnexion:
-        return("Fallo al conectarse a mongodb" + errorConnexion)
-
-
-def nHidricaIntervalo(dias, fec, estacion, tipo, tipo_riego):
-    pais = 2#1 peru
-    print("Fecha ingresada por el usuario:", fec)
-    #convertimos a string y unix y restamos el dia de consulta
-    fec_string_usuario, fec_unix_usuario = convert_formato_fecha(fec)
-    print("Fecha a ingresar a calculo:", fec_string_usuario)
-    ##solicitamos datos
-    datos=BD_MONGO_INTERVALO(dias, pais, estacion, fec_unix_usuario)
-    ###calculo
-    ET_acc = 0
-    precip_acc = 0
-    agua_aprove = {'arenosa':2.5, 'arcillosa':7, 'franco':4.75}
-    den_ap_suelo = {'arenosa':1.65, 'arcillosa':1.3, 'franco':1.25}
-    cap_suelo = den_ap_suelo[tipo]*500*agua_aprove[tipo]
-    suelo_infil_lluvia = ET_acc + cap_suelo
-    #unimos datos para la grafica de la evapotranspiracion
-    Vector_Grafica=[]
-    evp_cultivo=0
-
-    for k in datos:
-        fecha = k["Fecha_D_str"]
-        et = k["Datos"]["ET_D"]
-        ET_acc += et
-        inc_lluvia = k["Datos"]["Precipitacion_D"]
-        evp_cultivo += round(et*1.1,2)
-        #print("Fecha:", fecha, " ","Temperatura:", temperatura , " ", "GDD:", gdd)
-        if inc_lluvia > 5:
-            precip_acc += inc_lluvia
-        Vector_Grafica.append((fecha, round(et*1.1,2), round(inc_lluvia,2)))
-    
-    if suelo_infil_lluvia < precip_acc:
-        lluvia_efectiva = suelo_infil_lluvia
-    else:
-        lluvia_efectiva = precip_acc
-    ef_riego = {'inundación':0.5,'microaspersión':0.7,'goteo':0.9}
-    NH = (ET_acc*1.1 - lluvia_efectiva)*10/ef_riego[tipo_riego]
-    if NH < 0:
-        NH = 0
-    prom_evp_cultivo=evp_cultivo/dias ##sacamos el promedio de evapo del cultivo por dia
-    intervalo_30= (30+lluvia_efectiva)/prom_evp_cultivo ###a 30 le sumamos la lluvia efectiva y dividimos entre el promedio
-    #print("intervalo 30:", intervalo_30)
-    intervalo_50= (50+lluvia_efectiva)/prom_evp_cultivo
-    #print("intervalo 50:", intervalo_50)
-    intervalo_70= (70+lluvia_efectiva)/prom_evp_cultivo
-    #print("intervalo 70:", intervalo_70)
-    return round(NH/10,2), Vector_Grafica, round(evp_cultivo,2), round(intervalo_30, 1), round(intervalo_50,1), round(intervalo_70,1)
-
-
+    ef_riego = {'gravedad':(100/40),'aspersión':(100/70),'goteo': (100/90)}
+    Rec_LP = RecomendacionLP*ef_riego[tipo_riego]
+    Rec_L_Ha = RecomendacionLH*ef_riego[tipo_riego]
+    return round(Rec_LP,2), round(Rec_L_Ha,2), Vector_Grafica
 
