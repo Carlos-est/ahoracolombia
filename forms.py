@@ -29,6 +29,6 @@ class FormNutrientes(FlaskForm):
 class FormRiego(FlaskForm):
     rPa = h5fields.IntegerField("Densidad de plantas de banano por hectárea (1500-2000):", widget=h5widgets.NumberInput(min=1500, max=2000), validators=(DataRequired(),))
     #fechaFinal = DateField('Fecha final del periodo:', format='%Y-%m-%d', validators=(DataRequired(),))
-    dAparente = h5fields.IntegerField("Densidad aparente del suelo (0.7-1.7). Si desconoce es valor utilizar 1.2:", widget=h5widgets.NumberInput(min=0.7, max=1.7, step=0.1), validators=(DataRequired(),))
+    dAparente = h5fields.IntegerField("Densidad aparente del suelo (0.7-1.7). Si desconoce este valor utilizar 1.2:", widget=h5widgets.NumberInput(min=0.7, max=1.7, step=0.1), validators=(DataRequired(),))
     Hsuelo = h5fields.IntegerField("Humedad del suelo actual:", widget=h5widgets.NumberInput(min=0, max=100), validators=(DataRequired(),))
     

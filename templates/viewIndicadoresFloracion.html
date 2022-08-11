@@ -49,7 +49,7 @@
 
   <div class="row justify-content-center">
       <h6 class="card-title">Variación de temperatura, humedad relativa y acumulación de grados día, 
-        desde floración {{valor2}} hasta {{valor3}}. 
+        desde floración {{valor2}} hasta {{fechaFinal}}. 
       </h6>
         
     <div class="col-md-4">
@@ -75,13 +75,6 @@
                 data: {{ tempPromedio| safe}},
               fill: false,
               borderColor: 'blue',
-              lineTension: 0.1
-              },
-              {
-                label: "T. Proyectada",
-                data: {{ tempPromedioProyectada| safe}},
-              fill: false,
-              borderColor: 'red',
               lineTension: 0.1
               }
 
@@ -196,15 +189,7 @@
               borderColor: 'green',
               lineTension: 0.1
             // borderDash:[1,10]
-              },
-              {
-                label: "GDA Proyectada",
-                data: {{ gradosDiaProyectada| safe}},
-              fill: false,
-              borderColor: 'red',
-              lineTension: 0.1
               }
-
 
             ]
                 },
@@ -319,15 +304,7 @@
               borderColor: 'green',
               lineTension: 0.1
             // borderDash:[1,10]
-              },
-              {
-                label: "Humedad Proyectada",
-                data: {{ HumedadProyectada| safe}},
-              fill: false,
-              borderColor: 'red',
-              lineTension: 0.1
               }
-
 
             ]
                 },
@@ -433,7 +410,6 @@
               <tr>
                 <td>Fecha</td>
                 <td>Temperatura Promedio</td>
-                <td>Temperatura Proyectada</td>
               </tr>
 
             <tbody>
@@ -441,7 +417,6 @@
               <tr>
                 <td>{{dato.0}}</td>
                 <td>{{dato.1}}</td>
-                <td>{{dato.2}}</td>
 
               </tr>
 
@@ -492,14 +467,7 @@
               fill: false,
               borderColor: 'blue',
               lineTension: 0.1
-                    },
-              {
-                label: "Temperatura Proyectada",
-                data: {{ tempPromedioProyectada| safe}},
-              fill: false,
-              borderColor: 'red',
-              lineTension: 0.1
-              }
+            }
 
             ]
                 },
@@ -598,15 +566,15 @@
               <tr>
                 <td>Fecha</td>
                 <td>Grados día acumulados</td>
-                <td>Grados día acumulados - Proyectada</td>
+                
               </tr>
 
             <tbody>
               {% for dato in datosCompletos %}
               <tr>
                 <td>{{dato.0}}</td>
-                <td>{{dato.3}}</td>
-                <td>{{dato.4}}</td>
+                <td>{{dato.2}}</td>
+                
 
               </tr>
 
@@ -658,17 +626,7 @@
               fill: false,
               borderColor: 'green',
               lineTension: 0.1
-              },
-              {
-                label: "Grados día Acumulado - Proyectada",
-                data: {{ gradosDiaProyectada| safe}},
-              fill: false,
-              borderColor: 'red',
-              lineTension: 0.1
               }
-
-
-
 
             ]
                 },
@@ -772,16 +730,15 @@
               <tr>
                 <td>Fecha</td>
                 <td>Humedad Promedio</td>
-                <td>Humedad Proyectada</td>
+                
               </tr>
 
             <tbody>
               {% for dato in datosCompletos %}
               <tr>
                 <td>{{dato.0}}</td>
-                <td>{{dato.5}}</td>
-                <td>{{dato.6}}</td>
-
+                <td>{{dato.3}}</td>
+              
               </tr>
 
               {% endfor %}
@@ -833,14 +790,7 @@
               fill: false,
               borderColor: 'blue',
               lineTension: 0.1
-                    },
-              {
-                label: "Hunmedad Proyectada",
-                data: {{ HumedadProyectada| safe}},
-              fill: false,
-              borderColor: 'red',
-              lineTension: 0.1
-              }
+                    }
 
             ]
                 },

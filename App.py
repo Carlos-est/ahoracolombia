@@ -127,11 +127,9 @@ def viewIndicadoresFloracion():
 
     fechas = [row[0] for row in data]
     tempPromedio = [row[1] for row in data]
-    tempPromedioProyectada = [row[2] for row in data]
-    gradosDia = [row[3] for row in data]
-    gradosDiaProyectada = [row[4] for row in data]
-    Humedad = [row[5] for row in data]
-    HumedadProyectada = [row[6] for row in data]
+    gradosDia = [row[2] for row in data]
+    Humedad = [row[3] for row in data]
+    fechaFinal=data[-1][0]
     print("estimacion de fecha de cosecha")
     #### AÑADIDO NUEVO #####
     if estimacion == 0:
@@ -140,7 +138,7 @@ def viewIndicadoresFloracion():
     else:
         file_selector = 'viewIndicadoresFloracion.html'
  
-    return render_template(file_selector,   fechaFloracion = fechaFloracion,  valor1 = valor1, valor2 = valor2, valor3 = valor3, fechas = fechas, tempPromedio= tempPromedio, tempPromedioProyectada = tempPromedioProyectada, gradosDia=gradosDia,gradosDiaProyectada=gradosDiaProyectada, datosCompletos = data,  estimacion=estimacion,  estacionName = estacionName, nroSemanas = nroSemanas, semana_total=semana_total, temperatura=temperatura, Humedad=Humedad, HumedadProyectada=HumedadProyectada)
+    return render_template(file_selector,  fechaFinal=fechaFinal, fechaFloracion = fechaFloracion,  valor1 = valor1, valor2 = valor2, valor3 = valor3, fechas = fechas, tempPromedio= tempPromedio, gradosDia=gradosDia, datosCompletos = data,  estimacion=estimacion,  estacionName = estacionName, nroSemanas = nroSemanas, semana_total=semana_total, temperatura=temperatura, Humedad=Humedad)
 
 #BIOMASA 
 

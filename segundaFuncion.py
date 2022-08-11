@@ -174,7 +174,7 @@ def EstimacionFechaCosecha(fec, estacion):
     GDA_acum = 0
     TEMP_acum = 0
     HUM_acum = 0
-    gdd = 0
+    gdd = 0 
     for k in datos:
         gdd = k["Datos"]["GDD_D"]
         GDA_acum += gdd
@@ -183,10 +183,9 @@ def EstimacionFechaCosecha(fec, estacion):
         HUM_acum += humedad
         temperatura = k["Datos"]["Temperatura_D"]
         TEMP_acum += temperatura
-        Vector_datos.append((fecha, round(temperatura,2),"--", round(GDA_acum,2),"--", round(humedad,2),"--"))
+        Vector_datos.append((fecha, round(temperatura,2), round(GDA_acum,2), round(humedad,2)))
         if GDA_acum >= 900:
             break#print("valor de k1:", k, "sumatoria:", GDA_acum)
-    #print("GDA ACUMULADO PARA DESICIÓN::", GDA_acum) 
     #
     if GDA_acum <900:
         GDA_DATOS_REALES=GDA_acum
@@ -196,22 +195,21 @@ def EstimacionFechaCosecha(fec, estacion):
         gda_promedio = GDA_acum/datos_tomados
         gda_Restantes = 900-GDA_acum
         estimacion = math.ceil(gda_Restantes/gda_promedio)
+        print("estimacion:", estimacion)
         #estimacion = int(round(gda_Restantes/gda_promedio))
         """ print("promedio de gdd:", gda_promedio)
         print("promedio de humedad:", hum_promedio)
         print("Gda acumulados:", GDA_acum, " GDA restantes:", gda_Restantes)
         print("Estimacion:", estimacion) """
         #rellenamos los datos que faltan para la cosecha
-        
+        Vector_datos2=[]
         for k in range(int(estimacion)):
             GDA_acum += gda_promedio
             fec=datetime.strptime(fec_string_usuario, "%d/%m/%Y") #convertimos a date
             fecha_next = fec + timedelta(datos_tomados+k)
             fecha_next = fecha_next.strftime("%d/%m/%Y")
-            
-            Vector_datos.append((fecha_next,"--", round(temp_promedio,2),"--", round(GDA_acum,2),"--", round(hum_promedio,2)))
+            Vector_datos2.append((fecha_next,"--", round(temp_promedio,2),"--", round(GDA_acum,2),"--", round(hum_promedio,2)))
 
-        #print("Datos2:", Vector_datos)
         nSemanas=round((len(Vector_datos))/7, 1)
         fec_final = fecha_next
         return round(GDA_DATOS_REALES,1), fec_string_usuario, fec_final, estimacion, Vector_datos, nSemanas, round(temp_promedio, 2)
@@ -227,13 +225,10 @@ def EstimacionFechaCosecha(fec, estacion):
 
 def EstimacionNroHojasHijo(fec, estacion):
     pais = 2 #2 colombia
-    print("Fecha ingresada por el usuario:", fec)
     #convertimos a string y unix y restamos el dia de consulta
     fec_string_usuario, fec_unix_usuario = convert_formato_fecha_forward(fec)
-    print("Fecha a ingresar a calculo:", fec_string_usuario)
     ##solicitamos datos
     datos = BD_MONGO_FORWARD(pais, estacion, fec_unix_usuario)
-    print("Cantidad de Datos:", len(datos))
     Vector_datos=[]
     GDA_acum = 0
     TEMP_acum = 0
@@ -255,14 +250,12 @@ def EstimacionNroHojasHijo(fec, estacion):
         GDA_DATOS_REALES=GDA_acum
         datos_tomados=int(len(Vector_datos)) #dias tomados en cuenta
         nHojas = GDA_DATOS_REALES/108
-        print("gda men:", GDA_DATOS_REALES)
         nSemanas=round((len(Vector_datos))/7, 1)
         #fec_final = fecha_next
         opcion=1
         return round(nHojas,1), Vector_datos
     else:
         datos_tomados=int(len(Vector_datos)) #dias tomados en cuenta
-        print("gda acumulado:", GDA_acum)
         nHojas = GDA_acum/108
         opcion=2
         return round(nHojas,1), Vector_datos
