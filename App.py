@@ -134,10 +134,10 @@ def register():
         email_found = coleccion.find_one({"email": email})
         if email_found:
             message = 'Este email ya existe en la base de datos'
-            return render_template('accounts/register.html', message=message,form=createAccountForm)
+            return render_template('accounts/register.html', msg=message,form=createAccountForm)
         if password1 != password2:
             message = 'Las contraseñas no coinciden!'
-            return render_template('accounts/register.html', message=message,form=createAccountForm)
+            return render_template('accounts/register.html', msg=message,form=createAccountForm)
         else:
             
             #hash the password and encode it
