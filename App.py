@@ -26,7 +26,7 @@ from datetime import datetime
 
 
 app = Flask(__name__)
-
+pais =2 #COLOMBIA
 
 #MYSQL CONECTION
 app.config['MYSQL_HOST'] = 'labsac.com'
@@ -515,6 +515,21 @@ def viewNroHojasNroSemanas():
     gradosDia = [row[2] for row in data]
  
     return render_template('view14NroSemanas.html', NHojas = NHojas,  data = data, fechas = fechas ,tempPromedio =tempPromedio,gradosDia = gradosDia , estacionName = estacionName, nroSemanas = nroSemanas,fechaFinal=fechaFinal)
+
+
+@app.route('/EstacionesEstado')
+def estaciones_estado():
+    cantidad_Estaciones, Registro_Estaciones = funcionesGenerales.estado_estaciones(pais)
+    Id_estacion = [row[0] for row in Registro_Estaciones]
+    Nombre_esacion = [row[1] for row in Registro_Estaciones]
+    Fecha_ultima_act = [row[2] for row in Registro_Estaciones]  
+    session['cantidad_Estaciones'] = cantidad_Estaciones
+    session['Id_estacion'] = str(Id_estacion)
+    session['Nombre_esacion'] = str(Nombre_esacion)
+    session['Fecha_ultima_act'] = Fecha_ultima_act
+
+    return render_template("estado_estaciones.html", cantidad_Estaciones=cantidad_Estaciones,Id_estacion=Id_estacion,Nombre_esacion=Nombre_esacion,Fecha_ultima_act=Fecha_ultima_act, Registro_Estaciones=Registro_Estaciones)
+
 
 @app.route('/EnviarCorreo', methods = [ 'GET','POST'])
 def EnviarCorreo():
