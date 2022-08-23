@@ -26,7 +26,6 @@ from datetime import datetime
 
 
 app = Flask(__name__)
-import funcionesGenerales
 pais =2 #COLOMBIA
 
 #MYSQL CONECTION
@@ -695,6 +694,6 @@ def log_visitor(ip_address, requested_url, referer_page, page_name, query_string
 	finally:
 		cursor.close()
 		# conn.close()
-
+import funcionesGenerales
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
