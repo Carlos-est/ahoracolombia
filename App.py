@@ -561,6 +561,7 @@ def EnviarCorreo():
             mail.send(msg)
             return redirect(url_for("MensajeEnviado"))
         except:
+            pass
             return redirect(url_for("MensajeError"))
     return render_template("EnviarCorreo.html", form=enviarEmail)
 
