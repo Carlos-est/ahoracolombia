@@ -559,7 +559,7 @@ def EnviarCorreo():
         msg.body = "Nombre: {} \nApellidos: {} {}\nEmail: {}\nAsociación: {}\nDispositivo remitente: {}\nMensaje:\n{}".format(nombres, apellido_paterno, apellido_materno, email, asociacion,Dispositivo, mensaje)
         
         mail.send(msg)
-        return redirect(url_for("MensajeEnviado"))
+        return "mensaje enviado"
         """ except:
         try:
             mail.send(msg)
