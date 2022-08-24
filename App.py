@@ -562,7 +562,7 @@ def EnviarCorreo():
             return redirect(url_for("MensajeEnviado"))
         except:
             pass
-            return redirect(url_for("MensajeError"))
+            #return redirect(url_for("MensajeError"))
     return render_template("EnviarCorreo.html", form=enviarEmail)
 
 @app.route('/MensajeEnviado', methods = [ 'GET','POST'])
@@ -573,7 +573,7 @@ def MensajeEnviado():
 def MensajeError():
     return render_template("MensajeError.html")
 
-
+""" 
 @app.errorhandler(Exception)
 def handle_exception(e):
     # pass through HTTP errors
@@ -583,7 +583,7 @@ def handle_exception(e):
     # now you're handling non-HTTP exceptions only
     flash('Error: Verifique los datos ingresados')
     return render_template("formError.html", e=e), 500 
-
+ """
 
 
 
