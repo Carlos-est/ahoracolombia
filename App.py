@@ -557,12 +557,16 @@ def EnviarCorreo():
     
         msg = Message("Sugerencias y consultas - °AHora", sender="userahoracolombia@labsac.com", recipients=["userahoracolombia@labsac.com"])
         msg.body = "Nombre: {} \nApellidos: {} {}\nEmail: {}\nAsociación: {}\nDispositivo remitente: {}\nMensaje:\n{}".format(nombres, apellido_paterno, apellido_materno, email, asociacion,Dispositivo, mensaje)
+        
+        mail.send(msg)
+        #return redirect(url_for("MensajeEnviado"))
+        """ except:
         try:
             mail.send(msg)
             return redirect(url_for("MensajeEnviado"))
         except:
             pass
-            #return redirect(url_for("MensajeError"))
+            #return redirect(url_for("MensajeError")) """
     return render_template("EnviarCorreo.html", form=enviarEmail)
 
 @app.route('/MensajeEnviado', methods = [ 'GET','POST'])
