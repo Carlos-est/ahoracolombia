@@ -555,7 +555,7 @@ def EnviarCorreo():
         Dispositivo = "Laptop o Computadora"
         mensaje = request.form.get("mensaje")
     
-        msg = Message("Sugerencias y consultas - °AHora", sender="labsac2022@gmail.com", recipients=["labsac2022@gmail.com"])
+        msg = Message("Sugerencias y consultas - °AHora", sender="userahoracolombia@labsac.com", recipients=["userahoracolombia@labsac.com"])
         msg.body = "Nombre: {} \nApellidos: {} {}\nEmail: {}\nAsociación: {}\nDispositivo remitente: {}\nMensaje:\n{}".format(nombres, apellido_paterno, apellido_materno, email, asociacion,Dispositivo, mensaje)
         try:
             mail.send(msg)
