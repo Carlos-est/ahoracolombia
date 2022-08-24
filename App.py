@@ -534,13 +534,13 @@ def estaciones_estado():
 @app.route('/EnviarCorreo', methods = [ 'GET','POST'])
 def EnviarCorreo():
     enviarEmail=EnviarEmail()
-    app.config.update['MAIL_SERVER'] = 'mail.labsac.com'
-    app.config.update['MAIL_PORT'] = 465
-    app.config.update['MAIL_USE_TLS'] = False
-    app.config.update['MAIL_USE_SSL'] = True
+    app.config['MAIL_SERVER'] = 'mail.labsac.com'
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USE_TLS'] = False
+    app.config['MAIL_USE_SSL'] = True
     # MAIL_DEBUG : default app.debug
-    app.config.update['MAIL_USERNAME'] = 'userahoracolombia@labsac.com'
-    app.config.update['MAIL_PASSWORD'] = '1KVDAEOgK!yV'
+    app.config['MAIL_USERNAME'] = 'userahoracolombia@labsac.com'
+    app.config['MAIL_PASSWORD'] = '1KVDAEOgK!yV'
     # MAIL_DEFAULT_SENDER : default None
     # MAIL_MAX_EMAILS : default None
     # MAIL_SUPPRESS_SEND : default app.testing
@@ -557,16 +557,16 @@ def EnviarCorreo():
     
         msg = Message("Sugerencias y consultas - °AHora", sender="userahoracolombia@labsac.com", recipients=["userahoracolombia@labsac.com"])
         msg.body = "Nombre: {} \nApellidos: {} {}\nEmail: {}\nAsociación: {}\nDispositivo remitente: {}\nMensaje:\n{}".format(nombres, apellido_paterno, apellido_materno, email, asociacion,Dispositivo, mensaje)
-        
         mail.send(msg)
         return "mensaje enviado"
-        """ except:
-        try:
+                
+        """ try:
             mail.send(msg)
             return redirect(url_for("MensajeEnviado"))
         except:
             pass
-            #return redirect(url_for("MensajeError")) """
+            #return redirect(url_for("MensajeError")) 
+        """
     return render_template("EnviarCorreo.html", form=enviarEmail)
 
 @app.route('/MensajeEnviado', methods = [ 'GET','POST'])
