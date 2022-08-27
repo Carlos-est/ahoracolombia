@@ -1,4 +1,6 @@
 from flask_wtf import FlaskForm
+from flask_wtf.recaptcha import RecaptchaField
+
 from wtforms import IntegerField, SelectField, SubmitField, StringField, StringField, PasswordField, TextAreaField
 from wtforms.validators import Required, DataRequired, Email, Length
 from wtforms.fields.html5 import DateField, TimeField
@@ -17,7 +19,7 @@ class LoginForm(FlaskForm):
 
 
 class CreateAccountForm(FlaskForm):
-    nombres = StringField('Nombres:',
+    nombres = StringField('Nombres completos:',
                          id='nombre_create',
                          validators=[DataRequired()])
 
@@ -32,6 +34,8 @@ class CreateAccountForm(FlaskForm):
     email = StringField('Email',
                       id='email_create',
                       validators=[DataRequired(), Email()])
+    fecNacimiento = DateField('Fecha de nacimiento:', format='%Y-%m-%d', validators=(DataRequired(),))
+    
 
     ocupacion = StringField('Ocupación:',
                       id='ocupacion_create',
@@ -45,10 +49,12 @@ class CreateAccountForm(FlaskForm):
     password2 = PasswordField('Repite contraseña',
                              id='pwd2_create',
                              validators=[DataRequired()])
+    recaptcha = RecaptchaField()
 
 
 class FormIndicadoresCultivo(FlaskForm):
     fechaCosecha = DateField('Indique la fecha de la última cosecha realizada, para calcular la fecha aproximada en que se dio la floración:', format='%Y-%m-%d', validators=(DataRequired(),))
+    
     fechaFloracion = DateField('Indique la fecha de floración más reciente, para proyectar la semana óptima de cosecha:', format='%Y-%m-%d', validators=(DataRequired(),))
     nroSemanas = h5fields.IntegerField("Número de semanas:", widget=h5widgets.NumberInput(min=1, max=56), validators=(DataRequired(),))
     fechaFinal = DateField('Fecha final del periodo:', format='%Y-%m-%d', validators=(DataRequired(),))
@@ -96,5 +102,7 @@ class EnviarEmail(FlaskForm):
     mensaje = TextAreaField('Mensaje:', 
                             id='mensaje_create',
                             validators=[DataRequired(), Length(min=5, max=8)])
+
                             
+    recaptcha = RecaptchaField()
 

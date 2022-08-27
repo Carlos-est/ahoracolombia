@@ -58,3 +58,14 @@ def estado_estaciones(pais):
         
     print("registro de staciones", Registro_Estaciones)
     return cantidad_Estaciones, Registro_Estaciones
+
+def Visita(mail):
+    from datetime import datetime
+    visitas = {"Visita": 1,"usuario": mail ,"Tipo":"Aplicativo web" ,"Fecha_utc": datetime.utcnow(), "Fecha_local": datetime.now()}
+    return visitas
+
+def usuario(correo_user, pais):
+    #solicitar los dtos del usuario
+    print("correo user")
+    return correo_user
+
