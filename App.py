@@ -1,3 +1,4 @@
+from traceback import print_tb
 import funcionesGenerales
 import math
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -25,19 +26,30 @@ import datetime
 import config
 from datetime import datetime
 
+import requests, json
+
 app = Flask(__name__)
 pais = 2  # COLOMBIA
-#mail
-app.config['MAIL_SERVER'] = 'mail.labsac.com'
+# mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+# MAIL_DEBUG : default app.debug
+app.config['MAIL_USERNAME'] = 'labsac2022@gmail.com'
+app.config['MAIL_PASSWORD'] = 'qnpzhkihudlqtnps'
+
+""" app.config['MAIL_SERVER'] = 'mail.labsac.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 # MAIL_DEBUG : default app.debug
 app.config['MAIL_USERNAME'] = 'userahoracolombia@labsac.com'
-app.config['MAIL_PASSWORD'] = '1KVDAEOgK!yV'
-app.config['RECAPTCHA_PUBLIC_KEY'] = '6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY'
-app.config['RECAPTCHA_PRIVATE_KEY'] = '6LcRb6YhAAAAALYSprVN2eXWNZvEEdRDqZdcLaMD'
-app.config['TESTING'] = False
+app.config['MAIL_PASSWORD'] = '1KVDAEOgK!yV' """
+# RECAPTACHA
+#app.config['RECAPTCHA_PUBLIC_KEY'] = '6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY'
+#app.config['RECAPTCHA_PRIVATE_KEY'] = '6LcRb6YhAAAAALYSprVN2eXWNZvEEdRDqZdcLaMD'
+app.config['RECAPTCHA_ENABLED'] = False
 
 # SETTINGS
 app.secret_key = 'proyectoAhora2022COLOMBIA'
@@ -60,7 +72,7 @@ baseDatos = client[MONGO_BASEDATOS]
 coleccion = baseDatos[MONGO_COLECCION]
 # colección de visitas
 MONGO_COLECCION_V = "VISITAS"
-## diccionario que a 
+# diccionario
 
 # LOGIN
 """ login_manager = LoginManager()
@@ -88,8 +100,10 @@ def load_user(user_id):
  """
 # assign URLs to have a particular route
 
+
 @app.route("/", methods=['post', 'get'])
 def login():
+    session.permanent = True
     loginForm = LoginForm()
     message = 'Please login to your account'
     if "email" in session:
@@ -112,7 +126,7 @@ def login():
                 return redirect(url_for('home'))
             else:
                 if "email" in session:
-                    #hay que iinsertar un JSON para contabilizar las visitas.
+                    # hay que iinsertar un JSON para contabilizar las visitas.
                     coleccion_V = baseDatos[MONGO_COLECCION_V]
                     coleccion_V.insert_one(funcionesGenerales.Visita(email))
                     return redirect(url_for("home"))
@@ -124,29 +138,33 @@ def login():
 
     return render_template('accounts/login.html', form=loginForm)
 
-### INFORMACION DE LOGIN
+# INFORMACION DE LOGIN
 
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
+    sitekey = "6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY"
     form = CreateAccountForm()
     message = ''
     if "email" in session:
         return redirect(url_for("home"))
     if request.method == "POST":
-        if form.validate_on_submit():
-            nombres = request.form.get("nombres")
-            apellido_paterno = request.form.get("apellido_paterno")
-            apellido_materno = request.form.get("apellido_materno")
-            email = request.form.get("email")
-            fecNacimiento = request.form.get("fecNacimiento")
-            ocupacion = request.form.get("ocupacion")
-            asociacion = request.form.get("asociacion")
-            password1 = request.form.get("password1")
-            password2 = request.form.get("password2")
+        nombres = request.form.get("nombres")
+        apellido_paterno = request.form.get("apellido_paterno")
+        apellido_materno = request.form.get("apellido_materno")
+        email = request.form.get("email")
+        fecNacimiento = request.form.get("fecNacimiento")
+        ocupacion = request.form.get("ocupacion")
+        asociacion = request.form.get("asociacion")
+        password1 = request.form.get("password1")
+        password2 = request.form.get("password2")
+        captcha_response = request.form['g-recaptcha-response']
+        
+        if is_human(captcha_response):
             # if found in database showcase that it's found
             user_found = coleccion.find_one({"name": nombres})
             email_found = coleccion.find_one({"email": email})
+            session["email"] = email
             if email_found:
                 message = 'Este email ya existe en la base de datos'
                 return render_template('accounts/register.html', msg=message, form=form)
@@ -154,18 +172,18 @@ def register():
                 message = 'Las contraseñas no coinciden!'
                 return render_template('accounts/register.html', msg=message, form=form)
             else:
-
                 # hash the password and encode it
-                hashed = bcrypt.hashpw(password2.encode('utf-8'), bcrypt.gensalt())
+                hashed = bcrypt.hashpw(
+                    password2.encode('utf-8'), bcrypt.gensalt())
                 # assing them in a dictionary in key value pairs
                 user_input = {'nombres': nombres,
-                            'apellido_paterno': apellido_paterno,
-                            'apellido_materno': apellido_materno,
-                            'email': email,
-                            'fecNacimiento': fecNacimiento,
-                            'ocupacion': ocupacion,
-                            'asociacion': asociacion,
-                            'password': hashed}
+                                'apellido_paterno': apellido_paterno,
+                                'apellido_materno': apellido_materno,
+                                'email': email,
+                                'fecNacimiento': fecNacimiento,
+                                'ocupacion': ocupacion,
+                                'asociacion': asociacion,
+                                'password': hashed}
                 # insert it in the record collection
                 print("insert mongo:", user_input)
                 coleccion.insert_one(user_input)
@@ -178,9 +196,18 @@ def register():
                 coleccion_V.insert_one(funcionesGenerales.Visita(email))
                 return render_template('home.html', email=new_email)
         else:
-            flash('Por favor completar!')
-            redirect(url_for('login'))
-    return render_template('accounts/register.html', message=message, form=form)
+             # Log invalid attempts
+            flash("Por favor llenar todos los campos")        
+    return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
+
+def is_human(captcha_response):
+    secret = "6LcRb6YhAAAAALYSprVN2eXWNZvEEdRDqZdcLaMD"
+    payload = {'response':captcha_response, 'secret':secret}
+    response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
+    response_text = json.loads(response.text)
+    respuesta_captacha = response_text['success']
+    print("Respuesta chpcha:", respuesta_captacha)
+    return response_text['success']
 
 
 @app.route("/logout", methods=["POST", "GET"])
@@ -191,6 +218,7 @@ def logout():
         return redirect(url_for('login'))
     else:
         return redirect(url_for('login'))
+
 
 @app.route('/home')
 # @login_required
@@ -205,19 +233,24 @@ def home():
 @app.route('/usuario')
 def usuario():
     email = session["email"]
-    datos = coleccion.find_one({"email":email})
-    nombres = datos["nombres"] + " " + datos["apellido_paterno"] + " "+ datos["apellido_materno"]
+    datos = coleccion.find_one({"email": email})
+    nombres = datos["nombres"] + " " + \
+        datos["apellido_paterno"] + " " + datos["apellido_materno"]
     ocupacion = datos["ocupacion"]
     asociacion = datos["asociacion"]
+    fecNacimiento = datos["fecNacimiento"]
     #datos = funcionesGenerales.usuario(correo_usuario, pais)
-    return render_template("usuario.html",nombres=nombres, ocupacion=ocupacion,asociacion=asociacion, email = email)
+    return render_template("usuario.html", nombres=nombres, ocupacion=ocupacion, asociacion=asociacion, email=email, fecNacimiento=fecNacimiento)
 
-## PRIMERA FUNCIÓN
+# PRIMERA FUNCIÓN
+
+
 @app.route('/formNroHojas')
 def formNroHojas():
     #formBiomasa = FormBiomasa()
     formIndicadoresCultivo = FormIndicadoresCultivo()
     return render_template('formNroHojas.html', form=formIndicadoresCultivo)
+
 
 @app.route('/viewNroHojas', methods=['POST'])
 def viewNroHojas():
@@ -255,6 +288,7 @@ def viewNroHojas():
         # return render_template('viewBiomasa.html',valor1 = valor1, valor2 = valor2, valor3=valor3,  estacionName = estacionName)
         return render_template('viewNroHojas.html', NHojas14=NHojas14, NHojas28=NHojas28, data=data, fechas=fechas, last_fecha=last_fecha, tempPromedio=tempPromedio, gradosDia=gradosDia, estacionName=estacionName)
 
+
 @app.route('/viewNroHojasNroSemanas', methods=['POST'])
 def viewNroHojasNroSemanas():
 
@@ -290,7 +324,8 @@ def viewNroHojasNroSemanas():
 
         return render_template('view14NroSemanas.html', NHojas=NHojas,  data=data, fechas=fechas, tempPromedio=tempPromedio, gradosDia=gradosDia, estacionName=estacionName, nroSemanas=nroSemanas, fechaFinal=fechaFinal)
 
-## SEGUNDA FUNCIÓN
+# SEGUNDA FUNCIÓN
+
 
 @app.route('/formIndicadoresCosecha')
 def formIndicadoresCosecha():
@@ -299,12 +334,14 @@ def formIndicadoresCosecha():
 
     return render_template('formIndicadoresCosecha.html', form=formIndicadoresCultivo)
 
+
 @app.route('/formIndicadoresFloracion')
 def formIndicadoresFloracion():
 
     formIndicadoresCultivo = FormIndicadoresCultivo()
 
     return render_template('formIndicadoresFloracion.html', form=formIndicadoresCultivo)
+
 
 @app.route('/viewIndicadoresCosecha', methods=['POST'])  # ACTUALIZADO
 def viewIndicadoresCosecha():
@@ -346,6 +383,7 @@ def viewIndicadoresCosecha():
         gradosDiaBackward = [row[2] for row in data]
 
         return render_template('viewIndicadoresCosecha.html', fechaCosecha=fechaCosecha, GDA=GDA, fecha_floracion=fecha_floracion, nSemanas=nSemanas, fechasBackward=fechasBackward, tempPromedioBackward=tempPromedioBackward, gradosDiaBackward=gradosDiaBackward, data=data, fechasNroHojas=fechasNroHojas, tempPromedioNroHojas=tempPromedioNroHojas, gradosDiaNroHojas=gradosDiaNroHojas, dataGraficasNroHojas=dataGraficasNroHojas, valorNroHojas=valorNroHojas, estacionName=estacionName)
+
 
 @app.route('/viewIndicadoresFloracion', methods=['POST'])
 def viewIndicadoresFloracion():
@@ -390,17 +428,20 @@ def viewIndicadoresFloracion():
 
         return render_template(file_selector,  fechaFinal=fechaFinal, fechaFloracion=fechaFloracion,  valor1=valor1, valor2=valor2, valor3=valor3, fechas=fechas, tempPromedio=tempPromedio, gradosDia=gradosDia, datosCompletos=data,  estimacion=estimacion,  estacionName=estacionName, nroSemanas=nroSemanas, semana_total=semana_total, temperatura=temperatura, Humedad=Humedad)
 
-## TERCERA FUNCION BIOMASA
+# TERCERA FUNCION BIOMASA
+
 
 @app.route('/formBiomasa')
 def formBiomasa():
     formBiomasa = FormBiomasa()
     return render_template('formBiomasa.html', form=formBiomasa)
 
+
 @app.route('/formBiomasaProyeccion')
 def formBiomasaProyeccion():
     formBiomasa = FormBiomasa()
     return render_template('formBiomasaProyeccion.html', form=formBiomasa)
+
 
 @app.route('/viewBiomasa', methods=['POST'])
 def viewBiomasa():
@@ -457,13 +498,15 @@ def viewBiomasaProyeccion():
                                biomasa_planta=biomasa_planta, biomasa=biomasa, semanas=semanas, estimacion=estimacion,
                                estacionName=estacionName)
 
-## CUARTA FUNCIÓN
+# CUARTA FUNCIÓN
+
 
 @app.route('/formNutrientes')
 def formNutrientes():
     formNutrientes = FormNutrientes()
 
     return render_template('formNutrientes.html', form=formNutrientes)
+
 
 @app.route('/viewNutrientes', methods=['POST'])
 def viewNutrientes():
@@ -493,12 +536,14 @@ def viewNutrientes():
 
         return render_template('viewNutrientes.html', fec=fec, biomasa_planta=biomasa_planta, biomasa=biomasa, tupla=tupla, intervalo=intervalo,  estacionName=estacionName)
 
-## QUINTA FUNCIÓN
+# QUINTA FUNCIÓN
+
 
 @app.route('/formHidrica')
 def formHidrica():
     formRiego = FormRiego()
     return render_template('formHidrica.html', form=formRiego)
+
 
 @app.route('/viewHidrica', methods=['POST'])
 def viewHidricaDemanda():
@@ -538,7 +583,7 @@ def viewHidricaDemanda():
 
         return render_template('viewHidrica.html', Rec_LP=Rec_LP, Rec_L_Ha=Rec_L_Ha, fechas=fechas, evap=evap, rain=rain, data=data, estacionName=estacionName, fechaFinal=fechaFinal, riego=riego)
 
-######### OTRAS FUNCIONALIDADES
+# OTRAS FUNCIONALIDADES
 
 
 @app.route('/EstacionesEstado')
@@ -555,6 +600,7 @@ def estaciones_estado():
 
     return render_template("estado_estaciones.html", cantidad_Estaciones=cantidad_Estaciones, Id_estacion=Id_estacion, Nombre_esacion=Nombre_esacion, Fecha_ultima_act=Fecha_ultima_act, Registro_Estaciones=Registro_Estaciones)
 
+
 @app.route('/EnviarCorreo', methods=['GET', 'POST'])
 def EnviarCorreo():
     # MAIL_DEFAULT_SENDER : default None
@@ -563,50 +609,47 @@ def EnviarCorreo():
     # MAIL_ASCII_ATTACHMENTS : default False
     mail = Mail(app)
     form = EnviarEmail()
+    sitekey = "6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY"
 
-    print("fuera de if")
+    email = session["email"]
+    datos = coleccion.find_one({"email": email})
+    nombre = datos["nombres"]
+    apellido_paterno = datos["apellido_paterno"]
+    apellido_materno = datos["apellido_materno"]
+    Dispositivo = "Laptop o Computadora"
+    asociacion = datos["asociacion"]
+    nombres = nombre + " " + apellido_paterno + " " + apellido_materno
     if request.method == "POST":
-        if form.validate_on_submit():
-            nombres = request.form.get("nombres")
-            apellido_paterno = request.form.get("apellido_paterno")
-            apellido_materno = request.form.get("apellido_materno")
-            email = request.form.get("email")
-            asociacion = request.form.get("asociacion")
-            Dispositivo = "Laptop o Computadora"
-            mensaje = request.form.get("mensaje")
-
-            session['nombres'] = nombres
-            session['apellido_paterno'] = apellido_paterno
-            session['apellido_materno'] = apellido_materno
-            session['email'] = email
-            session['asociacion'] = asociacion
-            session['Dispositivo'] = Dispositivo
-            session['mensaje'] = mensaje
-
+        mensaje = request.form.get("mensaje")
+        captcha_response = request.form['g-recaptcha-response']
+        if is_human(captcha_response):       
             msg = Message("Sugerencias y consultas - °AHora",
-                          sender="userahoracolombia@labsac.com", recipients=["userahoracolombia@labsac.com"])
+                        sender="labsac2022@gmail.com", recipients=["labsac2022@gmail.com"])
             msg.body = "Nombre: {} \nApellidos: {} {}\nEmail: {}\nAsociación: {}\nDispositivo remitente: {}\nMensaje:\n{}".format(
-                nombres, apellido_paterno, apellido_materno, email, asociacion, Dispositivo, mensaje)
+                nombre, apellido_paterno, apellido_materno, email, asociacion, Dispositivo, mensaje)
+            print("mensaje anexado")
             try:
                 mail.send(msg)
-                print("dentro de try")
+                print("mensaje enviado")
                 return redirect(url_for("MensajeEnviado"))
             except:
-                print("error")
+                print("mensaje no enviado")
                 return redirect(url_for("MensajeError"))
-        """ else:
-            flash('Por favor completar!')
-            return redirect(url_for("EnviarCorreo_")) """
+        else:
+            flash("Por favor llenar todos los campos") 
     
-    return render_template("EnviarCorreo.html", form=form)
+    return render_template("EnviarCorreo.html", form=form,sitekey=sitekey, nombres=nombres, asociacion=asociacion, email=email)
+
 
 @app.route('/MensajeEnviado', methods=['GET', 'POST'])
 def MensajeEnviado():
     return render_template("MensajeEnviado.html")
 
+
 @app.route('/MensajeError', methods=['GET', 'POST'])
 def MensajeError():
     return render_template("MensajeError.html")
+
 
 """ 
 @app.errorhandler(Exception)

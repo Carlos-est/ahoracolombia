@@ -64,8 +64,5 @@ def Visita(mail):
     visitas = {"Visita": 1,"usuario": mail ,"Tipo":"Aplicativo web" ,"Fecha_utc": datetime.utcnow(), "Fecha_local": datetime.now()}
     return visitas
 
-def usuario(correo_user, pais):
-    #solicitar los dtos del usuario
-    print("correo user")
-    return correo_user
+
 

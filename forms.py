@@ -17,7 +17,6 @@ class LoginForm(FlaskForm):
                              id='pwd_login',
                              validators=[DataRequired()])
 
-
 class CreateAccountForm(FlaskForm):
     nombres = StringField('Nombres completos:',
                          id='nombre_create',
@@ -49,6 +48,7 @@ class CreateAccountForm(FlaskForm):
     password2 = PasswordField('Repite contraseña',
                              id='pwd2_create',
                              validators=[DataRequired()])
+                             
     recaptcha = RecaptchaField()
 
 
@@ -79,26 +79,7 @@ class FormRiego(FlaskForm):
     
 
 class EnviarEmail(FlaskForm):
-    nombres = StringField('Nombres:',
-                         id='nombre_create',
-                         validators=[DataRequired()])
-
-    apellido_paterno = StringField('Apellido paterno:',
-                         id='apellidom_create',
-                         validators=[DataRequired()])
-
-    apellido_materno = StringField('Apellido materno:',
-                         id='apellidom_create',
-                         validators=[DataRequired()])
-
-    email = StringField('Email',
-                      id='email_create',
-                      validators=[DataRequired(), Email()])
-
-    asociacion = StringField('Asociación:', 
-                            id='asociacion_create',
-                            validators=[DataRequired()]) 
-
+   
     mensaje = TextAreaField('Mensaje:', 
                             id='mensaje_create',
                             validators=[DataRequired(), Length(min=5, max=8)])

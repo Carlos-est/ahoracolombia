@@ -7,136 +7,67 @@
 
 {% block content %}
 
-<div id="content-wrapper" class="d-flex flex-column ubicacion text-center">
+<div id="content-wrapper" class="d-flex flex-column ubicacion">
 
     {% include 'includes/topbarHide.html' %}
-
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card text-center p-3">
-                <div class="card-body" sty>
-                    <h2 class="card-title">Perfíl del usuario</h2>
-
-                </div>
-                <ul class="list-group list-group-flush">
-                    <div class="row ">
-                        <div class="col-md-4">
-                            <h4 class="card-title text-left"> Nombres: </h4>
-                        </div>
-                        <div class="col">
-                            <h4 class="card-title text-left"> {{nombres}} </h4>
-                        </div>
-                    </div>
-                </ul>
-                <ul class="list-group list-group-flush">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h4 class="card-title text-left"> Apellidos: </h4>
-                        </div>
-                        <div class="col">
-                            <h4 class="card-title text-left"> {{apellidos}} </h4>
-                        </div>
-                    </div>
-                </ul>
-                <ul class="list-group list-group-flush">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h4 class="card-title text-left"> E-mail: </h4>
-                        </div>
-                        <div class="col">
-                            <h4 class="card-title text-left"> {{email}} </h4>
-                        </div>
-                    </div>
-                </ul>
-                <ul class="list-group list-group-flush">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h4 class="card-title text-left"> Ocupación: </h4>
-                        </div>
-                        <div class="col">
-                            <h4 class="card-title text-left"> {{ocupacion}} </h4>
-                        </div>
-                    </div>
-                </ul>
-                <ul class="list-group list-group-flush">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h4 class="card-title text-left"> Institución: </h4>
-                        </div>
-                        <div class="col">
-                            <h4 class="card-title text-left"> {{asociacion}} </h4>
-                        </div>
-                    </div>
-                </ul>
-
-
-
-
-            </div>
-        </div>
-
-    </div>
-    <div class="card ">
-        <div class="container-fluid">
+    <!-- propuesta -->
+    <div class="card">
+        <div class="container-fluid text-center">
             <div class="row ">
-                <form method="post" id="perfil">
-                    <div class=""> <!-- general -->
-                        <div class="panel panel-success">
-                            <h2 class="panel-title panel-heading">
-                                <center>
-                                    <font size="5"><i class='glyphicon glyphicon-user'></i>PERFIL</font>
-                                </center>
-                            </h2>
-
-                            <div class="panel-body" style="background-color: yellow;">
-                                <div class="row">
-                                    <div class=" col-md-9 col-lg-9 ">
-                                        <table class="table table-condensed">
-                                            <tbody>
-                                                <tr>
-                                                    <td class='col-md-3'>Nombres y Apellidos:</td>
-                                                    <td><input type="text" class="form-control input-sm"
-                                                            name="nombre_apellido"
-                                                            value="{{nombres}}" required disabled></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Correo electrónico:</td>
-                                                    <td><input type="email" class="form-control input-sm" name="correo"
-                                                            value=" {{email}} " disabled></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Ocupación:</td>
-                                                    <td><input type="text" class="form-control input-sm"
-                                                            name="ocupacion" value=" {{ocupacion}} "
-                                                            required disabled></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Institución:</td>
-                                                    <td><input type="text" class="form-control input-sm"
-                                                            name=" asociacion" value=" {{asociacion}} "
-                                                            required disabled></td>
-                                                </tr>
-                                                
-                                            </tbody>
-                                        </table>
-
-
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- <div class="panel-footer text-center">
-                                 <button type="submit" class="btn btn-sm btn-success"><i
-                                        class="glyphicon glyphicon-refresh"></i> Actualizar hoja de vida</button> 
-                            </div> -->
-
+                <form method="" id="perfil">
+                    <div class="container-fluid justify-content-center flex-column">
+                        <div class="card-header card-header-primary p-2">
+                            <h2 class="card-title">PERFIL DE USUARIO</h2>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
+        <div class="card-body">
+            <div class="container-fluid text-center">
+                <div class="row">
+                    <div class="col">
+                        <label for="input1" class="form-label"> <h4>Nombres y apellidos:</h4></label>
+                        <input class="form-control" id="input1" type="text" name="nombre_apellido" value="{{nombres}}"
+                            disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="input2" class="form-label"><h4>Fecha de nacimiento:</h4></label>
+                        <input class="form-control" id="input2" type="date" name="correo" value="{{fecNacimiento}}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="input3" class="form-label"><h4> Correo electrónico:</h4></label>
+                        <input class="form-control" id="input3" type="email" name="correo" value="{{email}}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="input4" class="form-label"><h4>Ocupación:</h4></h4></label>
+                        <input class="form-control" id="input4" type="text" name="ocupacion" value="{{ocupacion}}"
+                            disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="input5" class="form-label"> <h4>Institución:</h4></label>
+                        <input class="form-control" id="input5" type="text" name="asociacion" value="{{asociacion}}"
+                            disabled>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
     </div>
-    {% endblock content %}
 
-    <!-- Specific Page JS goes HERE  -->
-    {% block javascripts %}{% endblock javascripts %}
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
