@@ -16,6 +16,18 @@
           {% else %}
           Agrega tus credenciales
           {% endif %}
+          
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+
+          <span class=flashes>
+            {% for message in messages %}
+            <h4 style="color: red;">{{ message }}</h4>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+          </span>
         </p>
       </div>
       <div class="card-body">
@@ -51,4 +63,3 @@
 {% endblock content %}
 
 {% block javascripts %}{% endblock javascripts %}
-

@@ -47,13 +47,10 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = 'userahoracolombia@labsac.com'
 app.config['MAIL_PASSWORD'] = '1KVDAEOgK!yV' """
 # RECAPTACHA
-#app.config['RECAPTCHA_PUBLIC_KEY'] = '6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY'
-#app.config['RECAPTCHA_PRIVATE_KEY'] = '6LcRb6YhAAAAALYSprVN2eXWNZvEEdRDqZdcLaMD'
 app.config['RECAPTCHA_ENABLED'] = False
-
 # SETTINGS
 app.secret_key = 'proyectoAhora2022COLOMBIA'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
 
 MONGO_HOST = "200.48.235.251"
 MONGO_PUERTO = "27017"
@@ -74,30 +71,6 @@ coleccion = baseDatos[MONGO_COLECCION]
 MONGO_COLECCION_V = "VISITAS"
 # diccionario
 
-# LOGIN
-""" login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"
-def is_authenticated(self):
-	return True
-
-def is_active(self):
-	return True
-
-def is_anonymous(self):
-	return False
-
-def get_id(self):
-	return str(self.id)
-
-def is_admin(self):
-	return self.admin
-@login_manager.user_loader
-def load_user(user_id):
-    user_found = coleccion.find_one({"name": nombres})
-	return Usuarios.query.get(int(user_id))
-
- """
 # assign URLs to have a particular route
 
 
@@ -119,19 +92,37 @@ def login():
             email_val = email_found['email']
             passwordcheck = email_found['password']
             # encode the password and check if it matches
-            if bcrypt.checkpw(password.encode('utf-8'), passwordcheck):
-                session["email"] = email_val
-                coleccion_V = baseDatos[MONGO_COLECCION_V]
-                coleccion_V.insert_one(funcionesGenerales.Visita(email))
-                return redirect(url_for('home'))
-            else:
-                if "email" in session:
-                    # hay que iinsertar un JSON para contabilizar las visitas.
+            if type(passwordcheck) == str:
+                password = password.encode()
+                from_node_hash = passwordcheck.encode()
+                if bcrypt.hashpw(password, from_node_hash) == from_node_hash:
+                    print("Ha ingresado con cuenta de móvil al aplicativo web!!!")
+                    session["email"] = email_val
                     coleccion_V = baseDatos[MONGO_COLECCION_V]
                     coleccion_V.insert_one(funcionesGenerales.Visita(email))
-                    return redirect(url_for("home"))
-                message = 'Error en la contraseña'
-                return render_template('accounts/login.html', message=message, form=loginForm)
+                    return redirect(url_for('home'))
+                else:
+                    if "email" in session:
+                        #hay que iinsertar un JSON para contabilizar las visitas.
+                        coleccion_V = baseDatos[MONGO_COLECCION_V]
+                        coleccion_V.insert_one(funcionesGenerales.Visita(email))
+                        return redirect(url_for("home"))
+                    message = 'Error en la contraseña'
+                    return render_template('accounts/login.html', message=message, form=loginForm)
+            else:
+                if bcrypt.checkpw(password.encode('utf-8'), passwordcheck):
+                    session["email"] = email_val
+                    coleccion_V = baseDatos[MONGO_COLECCION_V]
+                    coleccion_V.insert_one(funcionesGenerales.Visita(email))
+                    return redirect(url_for('home'))
+                else:
+                    if "email" in session:
+                        # hay que iinsertar un JSON para contabilizar las visitas.
+                        coleccion_V = baseDatos[MONGO_COLECCION_V]
+                        coleccion_V.insert_one(funcionesGenerales.Visita(email))
+                        return redirect(url_for("home"))
+                    message = 'Error en la contraseña'
+                    return render_template('accounts/login.html', message=message, form=loginForm)
         else:
             message = 'Email no encontrado'
             return render_template('accounts/login.html', message=message, form=loginForm)
@@ -662,5 +653,24 @@ def handle_exception(e):
     flash('Error: Verifique los datos ingresados')
     return render_template("formError.html", e=e), 500 
  """
+
+@app.before_request
+def antes_de_cada_peticion():
+    ruta = request.path
+    print("ruta solicitada:", ruta)
+    if not "email" in session  and ruta != "/login" and ruta != "/register"and ruta != "/" and ruta != "/logout":
+        print("ruta solicitada en if:", ruta)
+        print("No se ha iniciado sesión")
+        flash("Inicia sesión para continuar")
+        return redirect(url_for('login'))
+    else:
+        print("funcionamiento correcto")
+
+    """ # Si no ha iniciado sesión y no quiere ir a algo relacionado al login, lo redireccionamos al login
+    if not 'email' in session and ruta != "/login" and ruta != "/register" and ruta != "/logout" and not ruta.startswith("/static"):
+        flash("Inicia sesión para continuar")
+        return redirect("/login")
+    # Si ya ha iniciado, no hacemos nada, es decir lo dejamos pasar """
+    
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

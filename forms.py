@@ -1,6 +1,4 @@
 from flask_wtf import FlaskForm
-from flask_wtf.recaptcha import RecaptchaField
-
 from wtforms import IntegerField, SelectField, SubmitField, StringField, StringField, PasswordField, TextAreaField
 from wtforms.validators import Required, DataRequired, Email, Length
 from wtforms.fields.html5 import DateField, TimeField
@@ -48,8 +46,7 @@ class CreateAccountForm(FlaskForm):
     password2 = PasswordField('Repite contraseña',
                              id='pwd2_create',
                              validators=[DataRequired()])
-                             
-    recaptcha = RecaptchaField()
+
 
 
 class FormIndicadoresCultivo(FlaskForm):
@@ -85,5 +82,4 @@ class EnviarEmail(FlaskForm):
                             validators=[DataRequired(), Length(min=5, max=8)])
 
                             
-    recaptcha = RecaptchaField()
 
