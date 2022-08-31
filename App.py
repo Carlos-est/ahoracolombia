@@ -61,18 +61,13 @@ MONGO_BASEDATOS = "PROYECTOC"
 MONGO_COLECCION = "users"
 MONGO_URI = "mongodb://" + MONGO_USER + ":" + MONGO_PWD + \
     "@"+MONGO_HOST + ":" + MONGO_PUERTO + "/" + MONGO_BASEDATOS
-#MONGO_URI = "mongodb://"+MONGO_HOST +":" + MONGO_PUERTO + "/"
 
-# connoct to your Mongo DB database
+#  Conectamos a la base datos de mongo
 client = MongoClient(MONGO_URI)
 baseDatos = client[MONGO_BASEDATOS]
 coleccion = baseDatos[MONGO_COLECCION]
-# colección de visitas
+# colección para registrar las visitas
 MONGO_COLECCION_V = "VISITAS"
-# diccionario
-
-# assign URLs to have a particular route
-
 
 @app.route("/", methods=['post', 'get'])
 def login():
@@ -103,7 +98,6 @@ def login():
                     return redirect(url_for('home'))
                 else:
                     if "email" in session:
-                        #hay que iinsertar un JSON para contabilizar las visitas.
                         coleccion_V = baseDatos[MONGO_COLECCION_V]
                         coleccion_V.insert_one(funcionesGenerales.Visita(email))
                         return redirect(url_for("home"))
@@ -128,9 +122,6 @@ def login():
             return render_template('accounts/login.html', message=message, form=loginForm)
 
     return render_template('accounts/login.html', form=loginForm)
-
-# INFORMACION DE LOGIN
-
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
@@ -199,8 +190,6 @@ def is_human(captcha_response):
     respuesta_captacha = response_text['success']
     print("Respuesta chpcha:", respuesta_captacha)
     return response_text['success']
-
-
 @app.route("/logout", methods=["POST", "GET"])
 def logout():
     loginForm = LoginForm()
@@ -210,16 +199,13 @@ def logout():
     else:
         return redirect(url_for('login'))
 
-
 @app.route('/home')
-# @login_required
 def home():
     if "email" in session:
         email = session["email"]
         return render_template('home.html', email=email)
     else:
         return redirect(url_for("login"))
-
 
 @app.route('/usuario')
 def usuario():
@@ -230,24 +216,17 @@ def usuario():
     ocupacion = datos["ocupacion"]
     asociacion = datos["asociacion"]
     fecNacimiento = datos["fecNacimiento"]
-    #datos = funcionesGenerales.usuario(correo_usuario, pais)
     return render_template("usuario.html", nombres=nombres, ocupacion=ocupacion, asociacion=asociacion, email=email, fecNacimiento=fecNacimiento)
 
 # PRIMERA FUNCIÓN
-
-
 @app.route('/formNroHojas')
 def formNroHojas():
-    #formBiomasa = FormBiomasa()
     formIndicadoresCultivo = FormIndicadoresCultivo()
     return render_template('formNroHojas.html', form=formIndicadoresCultivo)
 
-
 @app.route('/viewNroHojas', methods=['POST'])
 def viewNroHojas():
-
     if request.method == 'POST':
-
         estacion = request.form['cmbEstacion']
         # fechaFinal=request.form['fechaFinal']
         # para colombia enviamos la fecha de hoy
@@ -263,8 +242,7 @@ def viewNroHojas():
         dict_estaciones = {"1": "Fundación", "2": "otras"}
 
         estacionName = dict_estaciones[estacion]  # BUSCA LA ESTACION
-        NHojas14, NHojas28, data = primeraFuncion.NumeroHojas(
-            fechaFinal, int(estacion))  # ENVIA EL NRO DE ESTACION CORRESPONDIENTE
+        NHojas14, NHojas28, data = primeraFuncion.NumeroHojas(fechaFinal, int(estacion))
         session['estacionName'] = estacionName
         session['NHojas14'] = str(NHojas14)
         session['NHojas28'] = str(NHojas28)
@@ -273,18 +251,14 @@ def viewNroHojas():
         fechas = [row[0] for row in data]
         tempPromedio = [row[1] for row in data]
         gradosDia = [row[2] for row in data]
-
         last_fecha = fechas[-1]
-
         # return render_template('viewBiomasa.html',valor1 = valor1, valor2 = valor2, valor3=valor3,  estacionName = estacionName)
         return render_template('viewNroHojas.html', NHojas14=NHojas14, NHojas28=NHojas28, data=data, fechas=fechas, last_fecha=last_fecha, tempPromedio=tempPromedio, gradosDia=gradosDia, estacionName=estacionName)
 
 
 @app.route('/viewNroHojasNroSemanas', methods=['POST'])
 def viewNroHojasNroSemanas():
-
     if request.method == 'POST':
-
         estacion = request.form['cmbEstacion']
         nroSemanas = request.form['nroSemanas']
         # fechaFinal=request.form['fechaFinal']
@@ -293,74 +267,55 @@ def viewNroHojasNroSemanas():
         date = fecha_hoy.date()
         fechaFinal = date.strftime("%Y-%m-%d")
         ###################################
-
         session['fechaFinal'] = fechaFinal
         session['estacion'] = estacion
         session['nroSemanas'] = nroSemanas
         fechaFinal = funcionesGenerales.cambiar_formato_fecha(fechaFinal)
-
        # DICCIONARIO QUE CONTIENE LAS ESTACIONES
         dict_estaciones = {"1": "Fundación", "2": "otras"}
-        estacionName = dict_estaciones[estacion]  # BUSCA LA ESTACION
+        estacionName = dict_estaciones[estacion]
         session['estacionName'] = estacionName
         NHojas, data = primeraFuncion.NumeroHojasSemanas(
             fechaFinal, int(estacion), int(nroSemanas))
-
         session['valor1'] = str(NHojas)
         session['data'] = data
-
         fechas = [row[0] for row in data]
         tempPromedio = [row[1] for row in data]
         gradosDia = [row[2] for row in data]
-
         return render_template('view14NroSemanas.html', NHojas=NHojas,  data=data, fechas=fechas, tempPromedio=tempPromedio, gradosDia=gradosDia, estacionName=estacionName, nroSemanas=nroSemanas, fechaFinal=fechaFinal)
 
 # SEGUNDA FUNCIÓN
 
-
 @app.route('/formIndicadoresCosecha')
 def formIndicadoresCosecha():
-
     formIndicadoresCultivo = FormIndicadoresCultivo()
-
     return render_template('formIndicadoresCosecha.html', form=formIndicadoresCultivo)
-
 
 @app.route('/formIndicadoresFloracion')
 def formIndicadoresFloracion():
-
     formIndicadoresCultivo = FormIndicadoresCultivo()
-
     return render_template('formIndicadoresFloracion.html', form=formIndicadoresCultivo)
 
-
-@app.route('/viewIndicadoresCosecha', methods=['POST'])  # ACTUALIZADO
+@app.route('/viewIndicadoresCosecha', methods=['POST'])
 def viewIndicadoresCosecha():
-
     if request.method == 'POST':
         fechaCosecha = request.form['fechaCosecha']
         estacion = request.form['cmbEstacion']
         session['estacion'] = estacion
         session['fechaCosecha'] = fechaCosecha
-
         fechaCosecha = funcionesGenerales.cambiar_formato_fecha(fechaCosecha)
-
         dict_estaciones = {"1": "Fundación", "2": "otras"}
-        estacionName = dict_estaciones[estacion]  # BUSCA LA ESTACION
+        estacionName = dict_estaciones[estacion]
         session['estacionName'] = estacionName
-
         # nuevo
         valorNroHojas, dataGraficasNroHojas = segundaFuncion.EstimacionNroHojasHijo(
             fechaCosecha, int(estacion))
         session['valorNroHojas'] = str(valorNroHojas)
         session['dataGraficasNroHojas'] = dataGraficasNroHojas
-
         fechasNroHojas = [row[0] for row in dataGraficasNroHojas]
         tempPromedioNroHojas = [row[1] for row in dataGraficasNroHojas]
         gradosDiaNroHojas = [row[2] for row in dataGraficasNroHojas]
-
         # fin nuevo
-
         # GRADOS DIA BACKWARD
         GDA, fecha_floracion, nSemanas, data = segundaFuncion.EstimacionFechaFloracion(
             fechaCosecha, int(estacion))
@@ -372,26 +327,19 @@ def viewIndicadoresCosecha():
         fechasBackward = [row[0] for row in data]
         tempPromedioBackward = [row[1] for row in data]
         gradosDiaBackward = [row[2] for row in data]
-
         return render_template('viewIndicadoresCosecha.html', fechaCosecha=fechaCosecha, GDA=GDA, fecha_floracion=fecha_floracion, nSemanas=nSemanas, fechasBackward=fechasBackward, tempPromedioBackward=tempPromedioBackward, gradosDiaBackward=gradosDiaBackward, data=data, fechasNroHojas=fechasNroHojas, tempPromedioNroHojas=tempPromedioNroHojas, gradosDiaNroHojas=gradosDiaNroHojas, dataGraficasNroHojas=dataGraficasNroHojas, valorNroHojas=valorNroHojas, estacionName=estacionName)
-
 
 @app.route('/viewIndicadoresFloracion', methods=['POST'])
 def viewIndicadoresFloracion():
-
     if request.method == 'POST':
         fechaFloracion = request.form['fechaFloracion']
         estacion = request.form['cmbEstacion']
         session['estacion'] = estacion
         session['fechaFloracion'] = fechaFloracion
-
         fechaFloracion = funcionesGenerales.cambiar_formato_fecha(
             fechaFloracion)
         dict_estaciones = {"1": "Fundación", "2": "otras"}
-
-        estacionName = dict_estaciones[estacion]  # BUSCA LA ESTACION
-        #print("fecha cosecha nueva",fechaCosechaTime )
-
+        estacionName = dict_estaciones[estacion]
         session['estacionName'] = estacionName
         # GRADOS DIA FORWARD
         valor1, valor2, valor3, estimacion, data, semana_total, temperatura = segundaFuncion.EstimacionFechaCosecha(
@@ -403,14 +351,11 @@ def viewIndicadoresFloracion():
         session['valor2'] = str(valor2)
         session['valor3'] = str(valor3)
         session['estimacion'] = str(estimacion)
-
         fechas = [row[0] for row in data]
         tempPromedio = [row[1] for row in data]
         gradosDia = [row[2] for row in data]
         Humedad = [row[3] for row in data]
         fechaFinal = data[-1][0]
-        print("estimacion de fecha de cosecha")
-        #### AÑADIDO NUEVO #####
         if estimacion == 0:
             file_selector = 'viewIndicadoresFloracion-1.html'
 
@@ -421,22 +366,18 @@ def viewIndicadoresFloracion():
 
 # TERCERA FUNCION BIOMASA
 
-
 @app.route('/formBiomasa')
 def formBiomasa():
     formBiomasa = FormBiomasa()
     return render_template('formBiomasa.html', form=formBiomasa)
-
 
 @app.route('/formBiomasaProyeccion')
 def formBiomasaProyeccion():
     formBiomasa = FormBiomasa()
     return render_template('formBiomasaProyeccion.html', form=formBiomasa)
 
-
 @app.route('/viewBiomasa', methods=['POST'])
 def viewBiomasa():
-
     if request.method == 'POST':
         fechaCosecha = request.form['fechaCosecha']
         Cant_manos = request.form['Cant_manos']
@@ -446,21 +387,16 @@ def viewBiomasa():
         session['rPa'] = rPa
         session['fechaCosecha'] = fechaCosecha
         session['estacion'] = estacion
-
         fechaCosecha = funcionesGenerales.cambiar_formato_fecha(fechaCosecha)
-
         dict_estaciones = {"1": "Fundación", "2": "otras"}
-        estacionName = dict_estaciones[estacion]  # BUSCA LA ESTACION
+        estacionName = dict_estaciones[estacion] 
         session['estacionName'] = estacionName
         fec_string, biomasa_planta, biomasa, semanas = terceraFuncion.EstimacionRacimoCicloAnterior(
             fechaCosecha, int(estacion), int(rPa), int(Cant_manos))
-
         return render_template('viewBiomasa.html', fec_string=fec_string, biomasa_planta=biomasa_planta, biomasa=biomasa,  estacionName=estacionName, semanas=semanas)
-
 
 @app.route('/viewBiomasaProyeccion', methods=['POST'])
 def viewBiomasaProyeccion():
-
     if request.method == 'POST':
         fechaFloracion = request.form['fechaFloracion']
         Cant_manos = request.form['Cant_manos']
@@ -470,7 +406,6 @@ def viewBiomasaProyeccion():
         session['rPa'] = rPa
         session['fechaFloracion'] = fechaFloracion
         session['estacion'] = estacion
-
         fechaFloracion = funcionesGenerales.cambiar_formato_fecha(
             fechaFloracion)
         dict_estaciones = {"1": "Fundación", "2": "otras"}
@@ -478,26 +413,20 @@ def viewBiomasaProyeccion():
         session['estacionName'] = estacionName
         fec, fec_final, biomasa_planta, biomasa, estimacion, semanas = terceraFuncion.EstimacionRacimoProyeccion(
             fechaFloracion, int(estacion), int(rPa), int(Cant_manos))
-
         if estimacion == 0:
             file_selector = 'viewBiomasaProyeccion-1.html'
-
         else:
             file_selector = 'viewBiomasaProyeccion.html'
-
         return render_template(file_selector, fec=fec, fec_final=fec_final,
                                biomasa_planta=biomasa_planta, biomasa=biomasa, semanas=semanas, estimacion=estimacion,
                                estacionName=estacionName)
 
 # CUARTA FUNCIÓN
 
-
 @app.route('/formNutrientes')
 def formNutrientes():
     formNutrientes = FormNutrientes()
-
     return render_template('formNutrientes.html', form=formNutrientes)
-
 
 @app.route('/viewNutrientes', methods=['POST'])
 def viewNutrientes():
@@ -510,9 +439,8 @@ def viewNutrientes():
         session['intervalo'] = intervalo
         session['estacion'] = estacion
         fechaCosecha = funcionesGenerales.cambiar_formato_fecha(fec)
-
         dict_estaciones = {"1": "Fundación", "2": "otras"}
-        estacionName = dict_estaciones[estacion]  # BUSCA LA ESTACION
+        estacionName = dict_estaciones[estacion] 
         session['estacionName'] = estacionName
         fec, biomasa_planta, biomasa, tupla = cuartaFuncion.nutrientes(
             fechaCosecha, int(estacion), int(rPa), int(intervalo))
@@ -520,27 +448,21 @@ def viewNutrientes():
         session['biomasa_planta'] = str(biomasa_planta)
         session['biomasa'] = str(biomasa)
         session['tupla'] = tupla
-
         fechas = [row[0] for row in tupla]
         masa_kg = [row[1] for row in tupla]
         msa_ton = [row[2] for row in tupla]
-
         return render_template('viewNutrientes.html', fec=fec, biomasa_planta=biomasa_planta, biomasa=biomasa, tupla=tupla, intervalo=intervalo,  estacionName=estacionName)
 
 # QUINTA FUNCIÓN
-
 
 @app.route('/formHidrica')
 def formHidrica():
     formRiego = FormRiego()
     return render_template('formHidrica.html', form=formRiego)
 
-
 @app.route('/viewHidrica', methods=['POST'])
 def viewHidricaDemanda():
-
     if request.method == 'POST':
-
         estacion = request.form['cmbEstacion']
         rPa = request.form['rPa']
         dAparente = request.form['dAparente']
@@ -558,24 +480,19 @@ def viewHidricaDemanda():
         session['estacion'] = estacion
         session['fechaFinal'] = fechaFinal
         fechaFinal = funcionesGenerales.cambiar_formato_fecha(fechaFinal)
-
         dict_estaciones = {"1": "Fundación", "2": "otras"}
         estacionName = dict_estaciones[estacion]  # BUSCA LA ESTACION
         session['estacionName'] = estacionName
         Rec_LP, Rec_L_Ha, data = quintaFuncion.RecomendacionHidrica(
             fechaFinal, int(estacion), int(rPa), float(dAparente), int(Hsuelo), riego)
-
         session['data'] = data
-
         fechas = [row[0] for row in data]
         evap = [row[1] for row in data]
         rain = [row[2] for row in data]
         fechaFinal = data[-1][0]
-
         return render_template('viewHidrica.html', Rec_LP=Rec_LP, Rec_L_Ha=Rec_L_Ha, fechas=fechas, evap=evap, rain=rain, data=data, estacionName=estacionName, fechaFinal=fechaFinal, riego=riego)
 
 # OTRAS FUNCIONALIDADES
-
 
 @app.route('/EstacionesEstado')
 def estaciones_estado():
@@ -588,9 +505,7 @@ def estaciones_estado():
     session['Id_estacion'] = str(Id_estacion)
     session['Nombre_esacion'] = str(Nombre_esacion)
     session['Fecha_ultima_act'] = Fecha_ultima_act
-
     return render_template("estado_estaciones.html", cantidad_Estaciones=cantidad_Estaciones, Id_estacion=Id_estacion, Nombre_esacion=Nombre_esacion, Fecha_ultima_act=Fecha_ultima_act, Registro_Estaciones=Registro_Estaciones)
-
 
 @app.route('/EnviarCorreo', methods=['GET', 'POST'])
 def EnviarCorreo():
@@ -631,28 +546,22 @@ def EnviarCorreo():
     
     return render_template("EnviarCorreo.html", form=form,sitekey=sitekey, nombres=nombres, asociacion=asociacion, email=email)
 
-
 @app.route('/MensajeEnviado', methods=['GET', 'POST'])
 def MensajeEnviado():
     return render_template("MensajeEnviado.html")
-
 
 @app.route('/MensajeError', methods=['GET', 'POST'])
 def MensajeError():
     return render_template("MensajeError.html")
 
-
-""" 
 @app.errorhandler(Exception)
 def handle_exception(e):
     # pass through HTTP errors
     if isinstance(e, HTTPException):
         return e
-
     # now you're handling non-HTTP exceptions only
     flash('Error: Verifique los datos ingresados')
     return render_template("formError.html", e=e), 500 
- """
 
 @app.before_request
 def antes_de_cada_peticion():
@@ -665,12 +574,6 @@ def antes_de_cada_peticion():
         return redirect(url_for('login'))
     else:
         print("funcionamiento correcto")
-
-    """ # Si no ha iniciado sesión y no quiere ir a algo relacionado al login, lo redireccionamos al login
-    if not 'email' in session and ruta != "/login" and ruta != "/register" and ruta != "/logout" and not ruta.startswith("/static"):
-        flash("Inicia sesión para continuar")
-        return redirect("/login")
-    # Si ya ha iniciado, no hacemos nada, es decir lo dejamos pasar """
     
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

@@ -19,8 +19,6 @@ MONGO_BASEDATOS = "PROYECTOC"
 MONGO_COLECCION = "PRETRATAMIENTO"
 MONGO_URI = "mongodb://"+ MONGO_USER +":"+ MONGO_PWD + "@"+MONGO_HOST +":" + MONGO_PUERTO + "/"+ MONGO_BASEDATOS
 
-
-
 def convert_formato_fecha(fec):
     fec = datetime.strptime(fec, '%d/%m/%Y')
     #restamos 1 dia que es el de consulta
