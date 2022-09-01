@@ -554,7 +554,7 @@ def MensajeEnviado():
 def MensajeError():
     return render_template("MensajeError.html")
 
-@app.errorhandler(Exception)
+""" @app.errorhandler(Exception)
 def handle_exception(e):
     # pass through HTTP errors
     if isinstance(e, HTTPException):
@@ -562,12 +562,12 @@ def handle_exception(e):
     # now you're handling non-HTTP exceptions only
     flash('Error: Verifique los datos ingresados')
     return render_template("formError.html", e=e), 500 
-
+ """
 @app.before_request
 def antes_de_cada_peticion():
     ruta = request.path
     print("ruta solicitada:", ruta)
-    if not "email" in session  and ruta != "/login" and ruta != "/register"and ruta != "/" and ruta != "/logout":
+    if not "email" in session  and ruta != "/login" and ruta != "/register"and ruta != "/" and ruta != "/logout" and '/static/' not in ruta:
         print("ruta solicitada en if:", ruta)
         print("No se ha iniciado sesión")
         flash("Inicia sesión para continuar")
@@ -576,4 +576,4 @@ def antes_de_cada_peticion():
         print("funcionamiento correcto")
     
 if __name__ == '__main__':
-    app.run(port=3000, debug=True)
+    app.run(port=5000, debug=True)
