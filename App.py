@@ -554,7 +554,7 @@ def MensajeEnviado():
 def MensajeError():
     return render_template("MensajeError.html")
 
-""" @app.errorhandler(Exception)
+@app.errorhandler(Exception)
 def handle_exception(e):
     # pass through HTTP errors
     if isinstance(e, HTTPException):
@@ -562,7 +562,7 @@ def handle_exception(e):
     # now you're handling non-HTTP exceptions only
     flash('Error: Verifique los datos ingresados')
     return render_template("formError.html", e=e), 500 
- """
+
 @app.before_request
 def antes_de_cada_peticion():
     ruta = request.path
