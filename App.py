@@ -1,22 +1,10 @@
 from traceback import print_tb
-import funcionesGenerales
+
 import math
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 from werkzeug.exceptions import HTTPException
 
-import primeraFuncion
-import segundaFuncion
-import terceraFuncion
-import cuartaFuncion
-import quintaFuncion
-
-from forms import FormIndicadoresCultivo
-from forms import FormBiomasa
-from forms import FormNutrientes
-from forms import FormRiego
-from forms import LoginForm, CreateAccountForm
-from forms import EnviarEmail
 import bcrypt
 from pymongo import MongoClient
 from flask_mail import Mail, Message
@@ -577,6 +565,20 @@ def antes_de_cada_peticion():
         return redirect(url_for('login'))
     else:
         print("funcionamiento correcto") """
-    
+
+
+import funcionesGenerales
+import primeraFuncion
+import segundaFuncion
+import terceraFuncion
+import cuartaFuncion
+import quintaFuncion
+from forms import FormIndicadoresCultivo
+from forms import FormBiomasa
+from forms import FormNutrientes
+from forms import FormRiego
+from forms import LoginForm, CreateAccountForm
+from forms import EnviarEmail
+
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
