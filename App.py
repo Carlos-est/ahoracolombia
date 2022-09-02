@@ -128,13 +128,15 @@ def register():
     sitekey = "6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY"
     form = CreateAccountForm()
     message = ''
-    if "email" in session:
-        return redirect(url_for("home"))
+    """ if "email" in session:
+        print("en register form home")
+        return redirect(url_for("home")) """
     if request.method == "POST":
         nombres = request.form.get("nombres")
         apellido_paterno = request.form.get("apellido_paterno")
         apellido_materno = request.form.get("apellido_materno")
         email = request.form.get("email")
+        session["email"] = email
         fecNacimiento = request.form.get("fecNacimiento")
         ocupacion = request.form.get("ocupacion")
         asociacion = request.form.get("asociacion")
@@ -146,13 +148,14 @@ def register():
             # if found in database showcase that it's found
             user_found = coleccion.find_one({"name": nombres})
             email_found = coleccion.find_one({"email": email})
-            session["email"] = email
             if email_found:
+                #str(email_found["email"]) == email
                 message = 'Este email ya existe en la base de datos'
-                return render_template('accounts/register.html', msg=message, form=form)
+                return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
+            
             if password1 != password2:
                 message = 'Las contraseñas no coinciden!'
-                return render_template('accounts/register.html', msg=message, form=form)
+                return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
             else:
                 # hash the password and encode it
                 hashed = bcrypt.hashpw(
@@ -179,7 +182,7 @@ def register():
                 return render_template('home.html', email=new_email)
         else:
              # Log invalid attempts
-            flash("Por favor llenar todos los campos")        
+            flash("Por favor llenar todos los campos")     
     return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
 
 def is_human(captcha_response):
@@ -554,7 +557,7 @@ def MensajeEnviado():
 def MensajeError():
     return render_template("MensajeError.html")
 
-@app.errorhandler(Exception)
+""" @app.errorhandler(Exception)
 def handle_exception(e):
     # pass through HTTP errors
     if isinstance(e, HTTPException):
@@ -562,8 +565,8 @@ def handle_exception(e):
     # now you're handling non-HTTP exceptions only
     flash('Error: Verifique los datos ingresados')
     return render_template("formError.html", e=e), 500 
-
-@app.before_request
+ """
+""" @app.before_request
 def antes_de_cada_peticion():
     ruta = request.path
     print("ruta solicitada:", ruta)
@@ -573,7 +576,7 @@ def antes_de_cada_peticion():
         flash("Inicia sesión para continuar")
         return redirect(url_for('login'))
     else:
-        print("funcionamiento correcto")
+        print("funcionamiento correcto") """
     
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
