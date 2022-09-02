@@ -39,7 +39,13 @@
           </div>
           <label>Password</label>
           <div class="mb-3">
-            {{ form.password(placeholder="Contraseña", class="form-control", type="password") }}
+            {{ form.password(placeholder="Contraseña", class="form-control", type="password", id="myInput") }}
+          </div>
+          
+          <div class="">
+            <!-- <input class="form-check-input" type="checkbox" id="rememberMe" checked=""> -->
+            <input type="checkbox" onclick="myFunction()">
+            <label class="form-check-label" for="">Mostrar contraseña</label>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="rememberMe" checked="">
@@ -58,8 +64,20 @@
       </div>
     </div>
   </main>
+
   {% include "includes/footer-fullscreen.html" %}
 </div>
+
+<script>
+  function myFunction() {
+    var x = document.getElementById("myInput");
+    if (x.type === "password") {
+      x.type = "text";
+    } else {
+      x.type = "password";
+    }
+  }
+  </script>
 {% endblock content %}
 
 {% block javascripts %}{% endblock javascripts %}
