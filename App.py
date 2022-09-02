@@ -113,7 +113,7 @@ def login():
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
-    sitekey = "6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY"
+    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
     form = CreateAccountForm()
     message = ''
     """ if "email" in session:
@@ -174,7 +174,7 @@ def register():
     return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
 
 def is_human(captcha_response):
-    secret = "6LcRb6YhAAAAALYSprVN2eXWNZvEEdRDqZdcLaMD"
+    secret = "6Ld3AMghAAAAAEbWii0S3XUtSDGh52iApMJJMJ2p"
     payload = {'response':captcha_response, 'secret':secret}
     response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
     response_text = json.loads(response.text)
@@ -506,7 +506,7 @@ def EnviarCorreo():
     # MAIL_ASCII_ATTACHMENTS : default False
     mail = Mail(app)
     form = EnviarEmail()
-    sitekey = "6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY"
+    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
 
     email = session["email"]
     datos = coleccion.find_one({"email": email})
@@ -545,7 +545,7 @@ def MensajeEnviado():
 def MensajeError():
     return render_template("MensajeError.html")
 
-""" @app.errorhandler(Exception)
+@app.errorhandler(Exception)
 def handle_exception(e):
     # pass through HTTP errors
     if isinstance(e, HTTPException):
@@ -553,8 +553,8 @@ def handle_exception(e):
     # now you're handling non-HTTP exceptions only
     flash('Error: Verifique los datos ingresados')
     return render_template("formError.html", e=e), 500 
- """
-""" @app.before_request
+
+@app.before_request
 def antes_de_cada_peticion():
     ruta = request.path
     print("ruta solicitada:", ruta)
@@ -564,7 +564,7 @@ def antes_de_cada_peticion():
         flash("Inicia sesión para continuar")
         return redirect(url_for('login'))
     else:
-        print("funcionamiento correcto") """
+        print("funcionamiento correcto")
 
 
 import funcionesGenerales
