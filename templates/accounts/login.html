@@ -1,9 +1,30 @@
 {% extends "layouts/base_login.html" %}
 {% block title %}INICIAR SESIÓN {% endblock %}
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
 
 {% block content %}
 <div class="container-fluid">
   <main class="form-signin">
+    <div class="alert alert-success">
+      <div class="text-center">
+        <h3 class="card-title">APLICATIVO °AHoRa</h3>
+      </div>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+
+      <span class=flashes>
+        {% for message in messages %}
+        <div class="text-center">
+          <h3 style="color: rgb(242, 11, 11);">{{ message }}</h3>
+        </div>
+        {% endfor %}
+      </span>
+      {% endif %}
+      {% endwith %}
+    </div>
 
     <div class="card" style="background-color: #bde5bf;">
       <div class="card-title pb-0 text-center bg-transparent">
@@ -16,18 +37,8 @@
           {% else %}
           Agrega tus credenciales
           {% endif %}
-          
-          {% with messages = get_flashed_messages() %}
-          {% if messages %}
 
-          <span class=flashes>
-            {% for message in messages %}
-            <h4 style="color: red;">{{ message }}</h4>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
 
-          </span>
         </p>
       </div>
       <div class="card-body">
@@ -41,7 +52,7 @@
           <div class="mb-3">
             {{ form.password(placeholder="Contraseña", class="form-control", type="password", id="myInput") }}
           </div>
-          
+
           <div class="">
             <!-- <input class="form-check-input" type="checkbox" id="rememberMe" checked=""> -->
             <input type="checkbox" onclick="myFunction()">
@@ -61,13 +72,50 @@
           ¿Aún no te has registrado?
           <a href="{{ url_for('register')}}" class="text" style="color:#9c27b0;">REGISTRARSE</a>
         </p>
+        <p class="text-center">
+          <a href="" class="text" style="color:#9c27b0;" data-bs-toggle="modal" data-bs-target="#myModal"> ¿Olvidaste tu
+            contraseña?</a>
+        </p>
       </div>
     </div>
   </main>
 
+  <!-- The Modal -->
+  <div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header text-center alert alert-success">
+          <h4 class="modal-title">¿Olvidaste tu contraseña?</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- Modal body -->
+        <form method="post" action="/ReContraseña" id="register-form">
+          <div class="container">
+            <div class="container-fluid text-center"> 
+              <h5> No te preocupes, te enviaremos una nueva contraseña al correo electrónico que registraste.</h5>
+            </div>
+            <br>
+            <div class="mb-3">
+              <label for="emailre">Email:</label>
+              {{ form.email(placeholder="ejemplo@gmail.com", class="form-control") }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Enviar</button>
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Olvídalo la he recordado</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+
   {% include "includes/footer-fullscreen.html" %}
 </div>
-
 <script>
   function myFunction() {
     var x = document.getElementById("myInput");
@@ -77,7 +125,7 @@
       x.type = "password";
     }
   }
-  </script>
+</script>
 {% endblock content %}
 
 {% block javascripts %}{% endblock javascripts %}

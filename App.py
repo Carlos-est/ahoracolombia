@@ -113,7 +113,7 @@ def login():
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
-    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
+    sitekey = "6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY"
     form = CreateAccountForm()
     message = ''
     """ if "email" in session:
@@ -174,7 +174,7 @@ def register():
     return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
 
 def is_human(captcha_response):
-    secret = "6Ld3AMghAAAAAEbWii0S3XUtSDGh52iApMJJMJ2p"
+    secret = "6LcRb6YhAAAAALYSprVN2eXWNZvEEdRDqZdcLaMD"
     payload = {'response':captcha_response, 'secret':secret}
     response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
     response_text = json.loads(response.text)
@@ -190,6 +190,68 @@ def logout():
     else:
         return redirect(url_for('login'))
 
+
+@app.route("/ReContraseña", methods=["POST", "GET"])
+def ReContraseña():
+    loginForm = LoginForm()
+    if request.method == "POST":
+        email = request.form.get("email")
+        # actualizar contraseña
+        # check if email exists in database
+        email_found = coleccion.find_one({"email": email})
+        if email_found:
+            email_val = email_found['email']
+            print("email_found:", email_found)
+            print("email_val:", email_val)
+            passwordcheck = email_found['password']
+            print("passwordcheck:", passwordcheck)
+            # actualizamos en base de datos
+            password = funcionesGenerales.generate_random_string()
+            # hash the password and encode it
+            hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            coleccion.update_one({"email": email}, {
+                                 "$set": {"password": hashed}})
+            print("Se ha actualizado")
+            # enviamos el password a correo electronico del remitente
+            mail = Mail(app)
+
+            msg = Message("Cambio de contraseña -Aplicativo °AHora",
+                          sender="labsac2022@gmail.com", recipients=["{}".format(email)])
+            msg.body = "Se ha cambiado su contraseña de manera exitosa. Por favor se recomienda cambiar a una contraseña que recuerde, ya que la contraseña que se le ha asignado es temporal, esto lo puede realizar en la opción 'Usuario' \nContraseña: {}".format(password)
+            print("mensaje anexado")
+            try:
+                mail.send(msg)
+                flash("Mensaje enviado correctamente. Por favor revisar su gmail!")
+                return redirect(url_for("login"))
+            except:
+                flash("mensaje no enviado")
+                return redirect(url_for("login"))
+
+        else:
+            flash("email no encontrado")
+    return redirect(url_for("login"))
+
+
+@app.route("/ActContraseña", methods=["POST", "GET"])
+def ActContraseña():
+    if request.method == "POST":
+        password1 = request.form.get("password1")
+        password2 = request.form.get("password2")
+        email = session["email"]
+        if password1 != password2:
+            flash('Las contraseñas no coinciden!')
+            return redirect(url_for("usuario")) 
+        else:
+            # hash the password and encode it
+            hashed = bcrypt.hashpw(
+                password2.encode('utf-8'), bcrypt.gensalt())
+            
+            coleccion.update_one({"email": email}, {
+                                 "$set": {"password": hashed}})
+            flash("La contraseña fue actualizada correctamente")
+        return redirect(url_for("usuario"))
+
+
 @app.route('/home')
 def home():
     if "email" in session:
@@ -200,6 +262,7 @@ def home():
 
 @app.route('/usuario')
 def usuario():
+    form = LoginForm()
     email = session["email"]
     datos = coleccion.find_one({"email": email})
     nombres = datos["nombres"] + " " + \
@@ -207,7 +270,7 @@ def usuario():
     ocupacion = datos["ocupacion"]
     asociacion = datos["asociacion"]
     fecNacimiento = datos["fecNacimiento"]
-    return render_template("usuario.html", nombres=nombres, ocupacion=ocupacion, asociacion=asociacion, email=email, fecNacimiento=fecNacimiento)
+    return render_template("usuario.html", nombres=nombres, ocupacion=ocupacion, asociacion=asociacion, email=email, fecNacimiento=fecNacimiento, form =form)
 
 # PRIMERA FUNCIÓN
 @app.route('/formNroHojas')
@@ -506,7 +569,7 @@ def EnviarCorreo():
     # MAIL_ASCII_ATTACHMENTS : default False
     mail = Mail(app)
     form = EnviarEmail()
-    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
+    sitekey = "6LcRb6YhAAAAAAJ7DNiNPt3PrltG07uC4koUPFUY"
 
     email = session["email"]
     datos = coleccion.find_one({"email": email})
@@ -558,14 +621,13 @@ def handle_exception(e):
 def antes_de_cada_peticion():
     ruta = request.path
     print("ruta solicitada:", ruta)
-    if not "email" in session  and ruta != "/login" and ruta != "/register"and ruta != "/" and ruta != "/logout" and '/static/' not in ruta:
+    if not "email" in session  and ruta != "/login" and ruta != "/register"and ruta != "/" and ruta != "/logout"  and ruta != "/ReContraseña" and '/static/' not in ruta:
         print("ruta solicitada en if:", ruta)
         print("No se ha iniciado sesión")
         flash("Inicia sesión para continuar")
         return redirect(url_for('login'))
     else:
         print("funcionamiento correcto")
-
 
 import funcionesGenerales
 import primeraFuncion

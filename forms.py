@@ -8,12 +8,12 @@ from wtforms.fields import html5 as h5fields
 from wtforms.widgets import html5 as h5widgets
 
 class LoginForm(FlaskForm):
-    email = StringField('Correo',
-                         id='username_login',
-                         validators=[DataRequired()])
+    email = StringField('Correo', validators=[DataRequired()])
     password = PasswordField('Password',
                              id='pwd_login',
                              validators=[DataRequired()])
+    password1 = PasswordField('Contraseña', validators=[DataRequired()])
+    password2 = PasswordField('Repite contraseña', validators=[DataRequired()])
 
 class CreateAccountForm(FlaskForm):
     nombres = StringField('Nombres completos:',
