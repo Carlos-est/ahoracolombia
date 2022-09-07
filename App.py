@@ -113,7 +113,7 @@ def login():
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
-    sitekey = "6LfL8cYhAAAAAFZ9ItuVnkfAfu-VC5m88YbdGP38"
+    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
     form = CreateAccountForm()
     message = ''
     """ if "email" in session:
@@ -174,7 +174,7 @@ def register():
     return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
 
 def is_human(captcha_response):
-    secret = "6LfL8cYhAAAAALuG2rYkdMYCHThUPx5dRr3vm9PO"
+    secret = "6Ld3AMghAAAAAEbWii0S3XUtSDGh52iApMJJMJ2p"
     payload = {'response':captcha_response, 'secret':secret}
     response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
     response_text = json.loads(response.text)
@@ -584,7 +584,7 @@ def EnviarCorreo():
     # MAIL_ASCII_ATTACHMENTS : default False
     mail = Mail(app)
     form = EnviarEmail()
-    sitekey = "6LfL8cYhAAAAAFZ9ItuVnkfAfu-VC5m88YbdGP38"
+    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
 
     email = session["email"]
     datos = coleccion.find_one({"email": email})
