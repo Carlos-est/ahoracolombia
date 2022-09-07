@@ -270,7 +270,22 @@ def usuario():
     ocupacion = datos["ocupacion"]
     asociacion = datos["asociacion"]
     fecNacimiento = datos["fecNacimiento"]
-    return render_template("usuario.html", nombres=nombres, ocupacion=ocupacion, asociacion=asociacion, email=email, fecNacimiento=fecNacimiento, form =form)
+    if "/" in fecNacimiento:
+        dl1 = fecNacimiento.split("/")
+        d1 = int(dl1[0])
+        m1 = int(dl1[1])
+        if d1 < 10:
+            day = "0" + str(d1)
+        else:
+            day = str(d1)
+        if m1 < 10:
+            month = "0" + str(m1)
+        else:
+            month = str(m1)
+        newdate = dl1[2] + "-" + month + "-" + day
+    else:
+        newdate = fecNacimiento
+    return render_template("usuario.html", nombres=nombres, ocupacion=ocupacion, asociacion=asociacion, email=email, fecNacimiento=newdate, form =form)
 
 # PRIMERA FUNCIÓN
 @app.route('/formNroHojas')
