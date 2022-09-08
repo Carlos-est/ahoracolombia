@@ -7,15 +7,9 @@ from datetime import date
 #biblioteca Mongo
 import pymongo
 from pymongo import MongoClient
-
 import time
 
-MONGO_HOST = "200.48.235.251"
-MONGO_PUERTO ="27017"
-MONGO_PWD = "ciba15153232"
-MONGO_USER = "estacionescolombia"
-MONGO_TIEMPO_FUERA =1000
-MONGO_BASEDATOS = "PROYECTOC"
+from App import MONGO_HOST, MONGO_PUERTO, MONGO_PWD, MONGO_USER, MONGO_TIEMPO_FUERA, MONGO_BASEDATOS
 MONGO_COLECCION = "PRETRATAMIENTO"
 
 MONGO_URI = "mongodb://"+ MONGO_USER +":"+ MONGO_PWD + "@"+MONGO_HOST +":" + MONGO_PUERTO + "/"+ MONGO_BASEDATOS
