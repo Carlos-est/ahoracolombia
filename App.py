@@ -23,8 +23,8 @@ app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 # MAIL_DEBUG : default app.debug
-app.config['MAIL_USERNAME'] = 'labsac2022@gmail.com'
-app.config['MAIL_PASSWORD'] = 'qnpzhkihudlqtnps'
+app.config['MAIL_USERNAME'] = 'apis2back@gmail.com'
+app.config['MAIL_PASSWORD'] = 'xufdtdivychgvjnb'
 
 """ app.config['MAIL_SERVER'] = 'mail.labsac.com'
 app.config['MAIL_PORT'] = 465
@@ -55,15 +55,16 @@ baseDatos = client[MONGO_BASEDATOS]
 coleccion = baseDatos[MONGO_COLECCION]
 # colección para registrar las visitas
 MONGO_COLECCION_V = "VISITAS"
+##
+sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
+secret = "6Ld3AMghAAAAAEbWii0S3XUtSDGh52iApMJJMJ2p"
+
 
 @app.route("/", methods=['post', 'get'])
 def login():
     session.permanent = True
     loginForm = LoginForm()
     message = 'Please login to your account'
-    if "email" in session:
-        return redirect(url_for("home"))
-
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
@@ -112,7 +113,6 @@ def login():
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
-    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
     form = CreateAccountForm()
     message = ''
     """ if "email" in session:
@@ -173,7 +173,6 @@ def register():
     return render_template('accounts/register.html', message=message, form=form, sitekey=sitekey)
 
 def is_human(captcha_response):
-    secret = "6Ld3AMghAAAAAEbWii0S3XUtSDGh52iApMJJMJ2p"
     payload = {'response':captcha_response, 'secret':secret}
     response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
     response_text = json.loads(response.text)
@@ -215,7 +214,7 @@ def ReContraseña():
             mail = Mail(app)
 
             msg = Message("Cambio de contraseña -Aplicativo °AHora",
-                          sender="labsac2022@gmail.com", recipients=["{}".format(email)])
+                          sender="apis2back@gmail.com", recipients=["{}".format(email)])
             msg.body = "Se ha cambiado su contraseña de manera exitosa. Por favor se recomienda cambiar a una contraseña que recuerde, ya que la contraseña que se le ha asignado es temporal, esto lo puede realizar en la opción 'Usuario' \nContraseña: {}".format(password)
             print("mensaje anexado")
             try:
@@ -583,7 +582,6 @@ def EnviarCorreo():
     # MAIL_ASCII_ATTACHMENTS : default False
     mail = Mail(app)
     form = EnviarEmail()
-    sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
 
     email = session["email"]
     datos = coleccion.find_one({"email": email})
@@ -598,7 +596,7 @@ def EnviarCorreo():
         captcha_response = request.form['g-recaptcha-response']
         if is_human(captcha_response):       
             msg = Message("Sugerencias y consultas - °AHora",
-                        sender="labsac2022@gmail.com", recipients=["labsac2022@gmail.com"])
+                        sender="apis2back@gmail.com", recipients=["apis2back@gmail.com"])
             msg.body = "Nombre: {} \nApellidos: {} {}\nEmail: {}\nAsociación: {}\nDispositivo remitente: {}\nMensaje:\n{}".format(
                 nombre, apellido_paterno, apellido_materno, email, asociacion, Dispositivo, mensaje)
             print("mensaje anexado")
