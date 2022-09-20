@@ -15,40 +15,38 @@ import requests, json
 
 app = Flask(__name__)
 pais = 2  # COLOMBIA
-# mail
+# SETTINGS
+app.secret_key = 'proyectoAhora2022COLOMBIA'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
+# credenciales para  email
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-# MAIL_DEBUG : default app.debug
 app.config['MAIL_USERNAME'] = 'apis2back@gmail.com'
 app.config['MAIL_PASSWORD'] = 'bgjqofsrolmpjftf'
 
-# RECAPTACHA
-app.config['RECAPTCHA_ENABLED'] = False
-# SETTINGS
-app.secret_key = 'proyectoAhora2022COLOMBIA'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
-
-MONGO_HOST = "200.48.235.251"
-MONGO_PUERTO = "27017"
-MONGO_PWD = "ciba15153232"
-MONGO_USER = "estacionescolombia"
+#  Conectamos a la base datos de mongo
+MONGO_HOST = "200.48.235.251"   ##cambiar por localhost (127.0.0.1)
+MONGO_PUERTO = "27017"  
+MONGO_PWD = "ciba15153232"  ##cambiar contraseña
+MONGO_USER = "estacionescolombia"  ##cambiar por roor
 MONGO_TIEMPO_FUERA = 10000
-MONGO_BASEDATOS = "PROYECTOC"
+MONGO_BASEDATOS = "PROYECTOC" ##cambiar por nombre de la BD
 MONGO_COLECCION = "users"
 MONGO_URI = "mongodb://" + MONGO_USER + ":" + MONGO_PWD + \
     "@"+MONGO_HOST + ":" + MONGO_PUERTO + "/" + MONGO_BASEDATOS
 
-#  Conectamos a la base datos de mongo
 client = MongoClient(MONGO_URI)
 baseDatos = client[MONGO_BASEDATOS]
 coleccion = baseDatos[MONGO_COLECCION]
 # colección para registrar las visitas
 MONGO_COLECCION_V = "VISITAS"
 ##
-sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa"
-secret = "6Ld3AMghAAAAAEbWii0S3XUtSDGh52iApMJJMJ2p"
+# RECAPTACHA
+app.config['RECAPTCHA_ENABLED'] = False
+sitekey = "6Ld3AMghAAAAAPqQ5g1Y4LqYzIknU11p2Esexhxa" #cambiar si es necesario
+secret = "6Ld3AMghAAAAAEbWii0S3XUtSDGh52iApMJJMJ2p" #cambiar si es necesario
 
 
 @app.route("/", methods=['post', 'get'])
