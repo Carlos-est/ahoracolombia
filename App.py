@@ -281,6 +281,7 @@ def formNroHojas():
     formIndicadoresCultivo = FormIndicadoresCultivo()
     return render_template('formNroHojas.html', form=formIndicadoresCultivo)
 
+
 @app.route('/viewNroHojas', methods=['POST'])
 def viewNroHojas():
     if request.method == 'POST':
@@ -341,6 +342,35 @@ def viewNroHojasNroSemanas():
         gradosDia = [row[2] for row in data]
         return render_template('view14NroSemanas.html', NHojas=NHojas,  data=data, fechas=fechas, tempPromedio=tempPromedio, gradosDia=gradosDia, estacionName=estacionName, nroSemanas=nroSemanas, fechaFinal=fechaFinal)
 
+@app.route('/formHojasHijo')
+def formHojasHijo():
+    formIndicadoresCultivo = FormIndicadoresHojas()
+    return render_template('formHojasHijo.html', form=formIndicadoresCultivo)
+
+@app.route('/viewHojasHijo', methods=['POST'])
+def viewHojasHijo():
+    if request.method == 'POST':
+        fechaCosecha = request.form['fechaCosecha']
+        estacion = request.form['cmbEstacion']
+        session['estacion'] = estacion
+        session['fechaCosecha'] = fechaCosecha
+        fechaCosecha = funcionesGenerales.cambiar_formato_fecha(fechaCosecha)
+        dict_estaciones = {"1": "Fundación", "2": "otras"}
+        estacionName = dict_estaciones[estacion]
+        session['estacionName'] = estacionName
+        # nuevo
+        valorNroHojas, dataGraficasNroHojas = segundaFuncion.EstimacionNroHojasHijo(
+            fechaCosecha, int(estacion))
+        session['valorNroHojas'] = str(valorNroHojas)
+        session['dataGraficasNroHojas'] = dataGraficasNroHojas
+        fechasNroHojas = [row[0] for row in dataGraficasNroHojas]
+        tempPromedioNroHojas = [row[1] for row in dataGraficasNroHojas]
+        gradosDiaNroHojas = [row[2] for row in dataGraficasNroHojas]
+        # fin nuevo
+        
+        return render_template('viewHojasHijo.html', fechaCosecha=fechaCosecha,fechasNroHojas=fechasNroHojas, tempPromedioNroHojas=tempPromedioNroHojas, gradosDiaNroHojas=gradosDiaNroHojas, dataGraficasNroHojas=dataGraficasNroHojas, valorNroHojas=valorNroHojas, estacionName=estacionName)
+
+
 # SEGUNDA FUNCIÓN
 
 @app.route('/formIndicadoresCosecha')
@@ -364,15 +394,7 @@ def viewIndicadoresCosecha():
         dict_estaciones = {"1": "Fundación", "2": "otras"}
         estacionName = dict_estaciones[estacion]
         session['estacionName'] = estacionName
-        # nuevo
-        valorNroHojas, dataGraficasNroHojas = segundaFuncion.EstimacionNroHojasHijo(
-            fechaCosecha, int(estacion))
-        session['valorNroHojas'] = str(valorNroHojas)
-        session['dataGraficasNroHojas'] = dataGraficasNroHojas
-        fechasNroHojas = [row[0] for row in dataGraficasNroHojas]
-        tempPromedioNroHojas = [row[1] for row in dataGraficasNroHojas]
-        gradosDiaNroHojas = [row[2] for row in dataGraficasNroHojas]
-        # fin nuevo
+        
         # GRADOS DIA BACKWARD
         GDA, fecha_floracion, nSemanas, data = segundaFuncion.EstimacionFechaFloracion(
             fechaCosecha, int(estacion))
@@ -384,7 +406,7 @@ def viewIndicadoresCosecha():
         fechasBackward = [row[0] for row in data]
         tempPromedioBackward = [row[1] for row in data]
         gradosDiaBackward = [row[2] for row in data]
-        return render_template('viewIndicadoresCosecha.html', fechaCosecha=fechaCosecha, GDA=GDA, fecha_floracion=fecha_floracion, nSemanas=nSemanas, fechasBackward=fechasBackward, tempPromedioBackward=tempPromedioBackward, gradosDiaBackward=gradosDiaBackward, data=data, fechasNroHojas=fechasNroHojas, tempPromedioNroHojas=tempPromedioNroHojas, gradosDiaNroHojas=gradosDiaNroHojas, dataGraficasNroHojas=dataGraficasNroHojas, valorNroHojas=valorNroHojas, estacionName=estacionName)
+        return render_template('viewIndicadoresCosecha.html', fechaCosecha=fechaCosecha, GDA=GDA, fecha_floracion=fecha_floracion, nSemanas=nSemanas, fechasBackward=fechasBackward, tempPromedioBackward=tempPromedioBackward, gradosDiaBackward=gradosDiaBackward, data=data, estacionName=estacionName)
 
 @app.route('/viewIndicadoresFloracion', methods=['POST'])
 def viewIndicadoresFloracion():
@@ -643,6 +665,7 @@ from forms import FormNutrientes
 from forms import FormRiego
 from forms import LoginForm, CreateAccountForm
 from forms import EnviarEmail
+from forms import FormIndicadoresHojas
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

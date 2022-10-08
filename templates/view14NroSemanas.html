@@ -31,7 +31,7 @@
             semanas (tomando como referencia la fecha de consulta {{fechaFinal}}).
           </h5>
         </div>
-      </div> 
+      </div>
     </div>
   </div>
 
@@ -56,9 +56,9 @@
               {
                 label: "Temperatura promedio",
                 data: {{ tempPromedio| safe}},
-                fill: false,
-                borderColor: 'blue',
-                lineTension: 0.1
+              fill: false,
+              borderColor: 'blue',
+              lineTension: 0.1
               },
 
             ]
@@ -324,7 +324,7 @@
         </div>
         <div class="modal-body">
 
-          <canvas id="chart1gNroHojas"  width="50%" height="25vh"></canvas>
+          <canvas id="chart1gNroHojas" width="50%" height="25vh"></canvas>
 
           <script type="module">
             function totalCasesChart(ctx) {
@@ -489,7 +489,7 @@
         </div>
         <div class="modal-body">
 
-          <canvas id="chart3gNroHojas"  width="50%" height="25vh"></canvas>
+          <canvas id="chart3gNroHojas" width="50%" height="25vh"></canvas>
 
           <script type="module">
             function totalCasesChart(ctx) {
@@ -595,6 +595,15 @@
         </div>
       </div>
 
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="col-md-12 flex-column">
+      <div class="alert alert-success alert-dismissible fade show p-2 text-center" role="alert">
+        <h5>
+          Recuerde que el número mínimo de hojas a floración es 9.
+        </h5>
+      </div>
     </div>
   </div>
 </div>

@@ -109,7 +109,7 @@ def EstimacionRacimoCicloAnterior(fec, estacion, rPA, Cant_manos):
     matSeca = 1.5*ES_ACUMULADO*(1-np.exp(-0.7*3.5))
     biomasa_planta = matSeca*(10000/rPA)/1000/0.25
     #print("biomasa total:", biomasa_planta)
-    biomasa_planta=round((biomasa_planta*(Cant_manos/13)),1)
+    biomasa_planta=round((biomasa_planta*(Cant_manos/12)),1)
     biomasa = round((biomasa_planta*rPA)/1000,2)#lo pasamos a hectareasbiomasa = biomasa_planta*rPA
     return fec_string, biomasa_planta, biomasa, semanas
 
@@ -206,7 +206,7 @@ def EstimacionRacimoProyeccion(fec, estacion,rPA, Cant_manos):
         matSeca = 1.5*esolarTotal*(1-np.exp(-0.7*3.5)) #g
         #0.25 es biomasa seca de de toda la planta y divimos entre 1000 para convertir el resultado a kg
         biomasa_planta = matSeca*((10000/rPA)/1000)/0.25 #resultado en kg
-        biomasa_planta=round((biomasa_planta*(Cant_manos/13)),1)
+        biomasa_planta=round((biomasa_planta*(Cant_manos/12)),1)
         biomasa = round(biomasa_planta*rPA,1)/1000
         return  fec_string_usuario,fec_final,biomasa_planta ,biomasa ,estimacion, nSemanas
     
@@ -219,7 +219,7 @@ def EstimacionRacimoProyeccion(fec, estacion,rPA, Cant_manos):
         matSeca = 1.5*ES_ACUMULADO*(1-np.exp(-0.7*3.5)) #g
         #0.25 es biomasa seca de de toda la planta y divimos entre 1000 para convertir el resultado a kg
         biomasa_planta = matSeca*((10000/rPA)/1000)/0.25 #resultado en kg
-        biomasa_planta=round((biomasa_planta*(Cant_manos/13)),1)
+        biomasa_planta=round((biomasa_planta*(Cant_manos/12)),1)
         biomasa = round(biomasa_planta*rPA,1)/1000
 
         return  fec_string_usuario,fec_final,biomasa_planta ,biomasa ,estimacion, nSemanas
